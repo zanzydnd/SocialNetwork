@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Talker</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bitter&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="talker_nav">
+        <div class="talker_nav_logo">
+            <a href="{% url 'home' %}" class="Talker_logo">Talker</a>
+        </div>
+        {% if user %}
+            <div class="talker_nav_you">
+                <a class="Talker_you" href="{% url 'profile' user.username %}">you</a>
+                <br>
+                <a class="Talker_you" href="{% url 'logout' %}">logout</a>
+            </div>
+        {% else %}
+            <div class="talker_nav_you">
+                <a class="Talker_you" href="{% url 'registration' %}">Register</a>
+                <br>
+                <a class="Talker_you" href="{% url 'login' %}">Login</a>
+            </div>
+        {% endif %}
+    </div>
+    <div class="talk">
+        <div class="talk_inner_user_name">
+            <a class="talker_username" href="{% url 'profile' talk.author.username %}">{{ talk.author.username }}</a>
+        </div>
+        <div class="talk_inner_text">
+            <a class="talk_talk">
+                {{ talk.text }}
+            </a>
+        </div>
+    </div>
+    {% if user %}
+        <form class="talk_input_container" action="{% url 'answer' talk.id %}" method="post">
+            {% csrf_token %}
+            <textarea name="text" id="text" required>Talk</textarea>
+            <button class="submit_button" type="submit">
+                Answer
+            </button>
+        </form>
+    {% endif %}
+    {% if answers %}
+        {% for answer in answers %}
+            <div class="talk">
+            <div class="talk_inner_user_name">
+                <a class="talker_username"
+                   href="{% url 'profile' answer.author.username %}">{{ answer.author.username }}</a>
+            </div>
+            <div class="talk_inner_text">
+                <a class="talk_talk">
+                    {{ answer.text }}
+                </a>
+            </div>
+        {% endfor %}
+    {% endif %}
+    </div>
+</div>
+</body>
+</html>
