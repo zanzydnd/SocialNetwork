@@ -1,4 +1,4 @@
-package ru.itis.kpfu.kozlov.social_network_impl.repositories;
+package ru.itis.kpfu.kozlov.social_network_impl.jpa.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.itis.kpfu.kozlov.social_network_impl.entities.UserEntity;

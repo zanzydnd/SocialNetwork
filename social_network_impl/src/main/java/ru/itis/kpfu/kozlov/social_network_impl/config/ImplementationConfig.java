@@ -12,7 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EntityScan(basePackages = "ru.itis.kpfu.kozlov.social_network_impl")
-@EnableJpaRepositories(basePackages = "ru.itis.kpfu.kozlov.social_network_impl.repositories")
+@EnableJpaRepositories(basePackages = "ru.itis.kpfu.kozlov.social_network_impl.jpa.repository")
 @ComponentScan("ru.itis.kpfu.kozlov.social_network_impl.services")
 public class ImplementationConfig {
     @Bean

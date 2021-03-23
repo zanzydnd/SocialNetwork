@@ -16,5 +16,6 @@ public class UserDto {
     private String username;
     private String about;
     private String password;
+    private Long id;
     private String dateOfBirth;
 }

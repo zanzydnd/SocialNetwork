@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import ru.itis.kpfu.kozlov.social_network_impl.entities.UserEntity;
-import ru.itis.kpfu.kozlov.social_network_impl.repositories.UserRepository;
+import ru.itis.kpfu.kozlov.social_network_impl.jpa.repository.UserRepository;
 
 @Component("customUserDetailsService")
 public class UserDetailsServiceImpl implements UserDetailsService {
