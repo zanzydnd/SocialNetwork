@@ -6,9 +6,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import ru.itis.kpfu.kozlov.social_network_api.dto.AuthForm;
+import ru.itis.kpfu.kozlov.social_network_api.dto.RegForm;
 import ru.itis.kpfu.kozlov.social_network_api.dto.UserDto;
 import ru.itis.kpfu.kozlov.social_network_api.services.UserService;
+import ru.itis.kpfu.kozlov.social_network_impl.entities.PostEntity;
 import ru.itis.kpfu.kozlov.social_network_impl.entities.UserEntity;
+import ru.itis.kpfu.kozlov.social_network_impl.jpa.repository.PostRepository;
 import ru.itis.kpfu.kozlov.social_network_impl.jpa.repository.UserRepository;
 
 import java.text.ParseException;
@@ -27,49 +31,62 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-
     @Override
-    public void register(UserDto userDto) {
+    public void register(RegForm regForm) {
         Date date = new Date();
         try {
-            date = new SimpleDateFormat("yyyy-MM-dd").parse(userDto.getDateOfBirth());
-            UserEntity user = new UserEntity();
-            modelMapper.map(userDto, user);
-            user.setId(null);
-            user.setDateOfBirth(date);
-            user.setState(UserEntity.State.NOT_CONFIRMED);
-            user.setRole(UserEntity.Role.USER);
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-            userRepository.save(user);
+            if (userRepository.findUserEntityByEmail(regForm.getEmail()) == null) {
+                date = new SimpleDateFormat("yyyy-MM-dd").parse(regForm.getDateOfBirth());
+                UserEntity user = new UserEntity();
+                modelMapper.map(regForm, user);
+                user.setId(null);
+                user.setDateOfBirth(date);
+                user.setRole(UserEntity.Role.USER);
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
+                user.setFirstName(regForm.getFirstName());
+                user.setLastName(regForm.getLastName());
+                userRepository.save(user);
+            } else {
+                throw new IllegalArgumentException("Username already exists");
+            }
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
     }
 
+
     @Override
-    public Page<UserDto> findAll(Pageable pageable) {
-        return userRepository.findAll(pageable).map(userEntity -> modelMapper.map(userEntity, UserDto.class));
+    public Optional<UserDto> getUserById(Long id) {
+        return userRepository.findById(id).map(userEntity -> modelMapper.map(userEntity, UserDto.class));
     }
 
     @Override
-    public Optional<UserDto> findById(Long aLong) {
-        return userRepository.findById(aLong).map(userEntity -> modelMapper.map(userEntity, UserDto.class));
+    public UserDto findByEmail(String email) {
+        return modelMapper.map(userRepository.findUserEntityByEmail(email), UserDto.class);
     }
 
     @Override
-    public Boolean save(UserDto userDto) {
-        return true;
+    public void signUpAfterOAuth(String email, String name, String lastname, String provider) {
+        UserEntity user = new UserEntity();
+        user.setEmail(email);
+        user.setFirstName(name);
+        user.setLastName(lastname);
+        user.setAuth_provider(UserEntity.AuthProvider.GOOGLE);
+        userRepository.save(user);
     }
 
     @Override
-    public Boolean delete(UserDto userDto) {
-        return true;
+    public void updateUserAfterOAuth(UserDto userDto, String name, String provider) {
+        UserEntity userEntity = modelMapper.map(userDto, UserEntity.class);
+        if (provider.equals(UserEntity.AuthProvider.GOOGLE.toString())) {
+            userEntity.setAuth_provider(UserEntity.AuthProvider.GOOGLE);
+        } else {
+            userEntity.setAuth_provider(UserEntity.AuthProvider.LOCAL);
+        }
+        userEntity.setFirstName(name);
+        userRepository.save(userEntity);
     }
 
-    @Override
-    public Boolean deleteById(Long aLong) {
-        return true;
-    }
+
 }

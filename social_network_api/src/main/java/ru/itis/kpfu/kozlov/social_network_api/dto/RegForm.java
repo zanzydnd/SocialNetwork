@@ -1,5 +1,6 @@
 package ru.itis.kpfu.kozlov.social_network_api.dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,13 +10,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
-    private String email;
+public class RegForm {
+    private String password;
     private String firstName;
     private String lastName;
-    private String about;
-    private Long id;
-    private String role;
-    private String password;
+    private String email;
     private String dateOfBirth;
+    private String password2;
+    private String about;
 }

@@ -4,20 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PostDto {
+public class PostUploadDto {
     private String text;
-    private String authorFirstName;
     private Long authorId;
-    private String pathToFile;
-    private String date;
-    private Long id;
-    private Long numberOfLikes;
-    private List<CommentDto> comments;
+    private MultipartFile pathToFile;
 }

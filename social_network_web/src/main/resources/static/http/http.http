@@ -1,0 +1,43 @@
+POST http://localhost:8080/posts
+Content-Type: application/json
+
+{
+  "text": "My new Post!",
+  "authorId": "2",
+  "pathToFile": "file_path!"
+}
+
+###
+
+GET http://localhost:8080/posts
+
+###
+
+PUT http://localhost:8080/posts/11
+Content-Type: application/json
+
+{
+  "text": "I've changed , believe_me"
+}
+
+###
+DELETE http://localhost:8080/posts/9
+
+###
+
+POST http://localhost:8080/posts
+Content-Type: application/json
+
+{
+  "text": "Posting very well",
+  "authorId": "2"
+}
+
+###
+
+POST http://localhost:8080/posts/9/like
+Content-Type: application/json
+
+{
+  "id": 1
+}

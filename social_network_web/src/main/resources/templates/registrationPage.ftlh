@@ -8,7 +8,6 @@
 <body>
 
 <form method="post">
-    <input name="username" type="text" placeholder="username">
     <input name="email" type="email" placeholder="email">
     <input name="firstName" type="text" placeholder="firstname">
     <input name="lastName" type="text" placeholder="lastname">

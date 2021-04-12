@@ -4,13 +4,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
+import ru.itis.kpfu.kozlov.social_network_impl.entities.CommentEntity;
 import ru.itis.kpfu.kozlov.social_network_impl.entities.PostEntity;
-import ru.itis.kpfu.kozlov.social_network_impl.entities.UserEntity;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface PostRepository extends JpaSpecificationExecutor<PostEntity>, JpaRepository<PostEntity, Long> {
-    Optional<PostEntity> findByAuthor(UserEntity user);
-
+@Repository
+public interface CommentRepository extends JpaSpecificationExecutor<CommentEntity>, JpaRepository<CommentEntity, Long> {
+    Page<CommentEntity> findByPost_Id(Long postId, Pageable pageable);
 }

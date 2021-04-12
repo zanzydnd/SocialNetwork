@@ -16,12 +16,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @ComponentScan("ru.itis.kpfu.kozlov.social_network_impl.services")
 public class ImplementationConfig {
     @Bean
-    public ModelMapper ModelMapper(){
+    public ModelMapper ModelMapper() {
         return new ModelMapper();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }
