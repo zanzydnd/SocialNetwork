@@ -12,10 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import ru.itis.kpfu.kozlov.social_network_api.dto.AuthenticationRequestDto;
 import ru.itis.kpfu.kozlov.social_network_api.dto.UserDto;
 import ru.itis.kpfu.kozlov.social_network_api.services.UserService;
@@ -83,8 +80,7 @@ public class AuthController {
             throw new BadCredentialsException("Invalid email or password");
         }
     }
-
-    @GetMapping(value = "/auth")
+    @GetMapping("/auth")
     public String authPage() {
         return "authPage";
     }

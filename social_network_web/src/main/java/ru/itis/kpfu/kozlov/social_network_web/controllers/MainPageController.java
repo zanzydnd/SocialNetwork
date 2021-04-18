@@ -26,6 +26,7 @@ public class MainPageController {
 
     @GetMapping("/")
     public String getPage(Model model, @AuthenticationPrincipal UserDetailsImpl userDetails, Pageable pageable) throws NotFoundException {
+        System.out.println(userDetails.getUsername());
         model.addAttribute("user", userService.findByEmail(userDetails.getUsername()));
         List<PostDto> dto = postService.findAll(pageable).getContent();
         System.out.println(dto);

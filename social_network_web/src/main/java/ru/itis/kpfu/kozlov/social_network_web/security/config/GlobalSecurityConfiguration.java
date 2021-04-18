@@ -26,7 +26,7 @@ import javax.sql.DataSource;
 @EnableWebSecurity
 public class GlobalSecurityConfiguration {
 
-    @Order(1)
+    @Order(2)
     @Configuration
     public static class ApiSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
@@ -67,7 +67,7 @@ public class GlobalSecurityConfiguration {
     }
 
 
-    @Order(2)
+    @Order(1)
     @Configuration
     public static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
@@ -85,10 +85,10 @@ public class GlobalSecurityConfiguration {
         public void configure(HttpSecurity http) throws Exception {
             http.csrf().disable();
             http.authorizeRequests()
-
+                    .antMatchers("/posts").authenticated()
                     .and()
-                    .formLogin().loginPage("/auth")
-                    .usernameParameter("username")
+                    .formLogin().loginPage("/auth").permitAll()
+                    .usernameParameter("email")
                     .passwordParameter("password")
                     .defaultSuccessUrl("/main")
                     .failureUrl("/auth?error")
@@ -99,14 +99,6 @@ public class GlobalSecurityConfiguration {
                     .and()
                     .rememberMe()
                     .rememberMeParameter("remember-me").tokenRepository(persistentTokenRepository());
-
-            http.csrf().disable();
-            http.antMatcher("/api/**")
-                    .authorizeRequests()
-                    .antMatchers("/api/profile").authenticated().and()
-                    .formLogin().disable()
-                    .httpBasic().and()
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         }
 
         @Bean

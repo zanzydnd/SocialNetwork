@@ -87,15 +87,34 @@
             $.ajax({
                 type: "POST",
                 enctype: 'multipart/form-data',
-                url: window.location.href + "api/posts",
+                url: "posts",
                 data: data,
 
                 processData: false,
                 contentType: false,
                 cache: false,
                 timeout: 1000000,
-                success: function (succes) {
-                    console.log("nice");
+                success: function (ret_data, textStatus, xhr) {
+                    $("#error-big-data").text("");
+                    $("#text").val("");
+                    $("#pathToFile").val("");
+                    console.log(ret_data);
+                    $("#new_post").append("<h1>" + ret_data['authorFirstName'] + "</h1>\n" +
+                        "    <h3>" + ret_data['date'] + "</h3>\n" +
+                        "    <a>"+ret_data['text'] + "</a>\n" +
+                        "    <img src=\"/uploads/" + ret_data['id'] + "/" + ret_data['pathToFile'] + "\" alt=\"/\">\n" +
+                        "    <button id=\"like" + ret_data['id'] + "\" class=\"like_button\" value=\"" + ret_data['id'] + "\">like\n" +
+                        "        <a id=\"numLikes" + ret_data['id'] + "\">0</a>\n" +
+                        "    </button>\n" +
+                        "    <form id=\"form" + ret_data['id'] + "\">\n" +
+                        "        <input type=\"text\" id=\"comment" + ret_data['id'] + "\" name=\"text\">\n" +
+                        "        <input type=\"hidden\" value=\"\" name=\"userId\">\n" +
+                        "        <input type=\"hidden\" value=\"" + ret_data['id'] + "\" name=\"postId\">\n" +
+                        "        <input type=\"submit\" name=\"submit\" class=\"btn\" value=\"отправить\">\n" +
+                        "    </form>\n")
+                },
+                error: function () {
+                    $("#error-big-data").text("Большой размер файла");
                 }
             });
         }
@@ -103,11 +122,11 @@
         function ajaxLike(value) {
             var user_id = ${user.id};
             var post_id = value;
-            var data = JSON.stringify({"id": ${user.id}})
+            var data = JSON.stringify({"userId": ${user.id}, "postId" : post_id})
             $.ajax({
                 type: "POST",
-                contentType: "application/json ",
-                url: window.location.href + "api/likes/" + post_id,
+                contentType: "application/json",
+                url: "/likes",
                 data: data,
                 success: function (ret_data, textStatus, xhr) {
                     console.log(ret_data)
@@ -133,18 +152,24 @@
                 var post_id = formData.get("postId");
                 var user_id = formData.get("userId");
                 var text = formData.get("text");
-                var data = JSON.stringify({"userId": user_id, "text": text});
+                var data = JSON.stringify({"text": text, "postId" : post_id});
                 $.ajax({
                     type: "POST",
                     contentType: "application/json",
-                    url: "api/posts/" + post_id + "/comments",
+                    url: "/comments",
                     data: data,
                     success: function (data, textStatus, xhr) {
                         var postId = data['postId'];
                         var userId = data['userId'];
                         $("#comment" + postId).val('');
                         var text = data['text'];
-                        $("#vstavka" + postId).append(userId, text);
+                        console.log(data);
+                        $("#comment-append" + postId).append('<h4>\n' +
+                            '                ' + data['userFirstName'] +'\n' +
+                            '            </h4>\n' +
+                            '            <h5>\n' +
+                            '                ' + data['text'] +'\n' +
+                            '            </h5>');
                     }
                 });
             });
@@ -153,19 +178,23 @@
 </head>
 <body>
 <#if user??>
-    <h1>${user.username}</h1>
+    <h1>${user.firstName}</h1>
     <form class="talk_input_container" id="post-create">
         <textarea name="text" id="text" required>Talk</textarea>
         <input hidden name="authorId" id="authorId" value="${user.id}">
         <input type="file" name="pathToFile" id="pathToFile">
+        <a id="error-big-data"></a>
         <button class="submit_button" id="button" name="button">
             Talk
         </button>
     </form>
 </#if>
 
+<div id="new_post">
+</div>
+
 <#list posts as post>
-    <h1>${post.authorUsername}</h1>
+    <h1>${post.getAuthorFirstName()}</h1>
     <h3>${post.date}</h3>
     <a>${post.text}</a>
     <img src="/uploads/${post.id}/${post.pathToFile}" alt="/">
@@ -174,22 +203,21 @@
     </button>
     <form id="form${post.id}">
         <input type="text" id="comment${post.id}" name="text">
-        <input type="hidden" value="${user.id}" name="userId">
         <input type="hidden" value="${post.id}" name="postId">
         <input type="submit" name="submit" class="btn" value="отправить">
     </form>
     <div>
         <h2>Comments</h2>
+        <div id="comment-append${post.id}">
+        </div>
         <#list post.getComments() as comment>
             <h4>
-                ${comment.username}
+                ${comment.userFirstName}
             </h4>
             <h5>
                 ${comment.text}
             </h5>
         </#list>
-    </div>
-    <div id="vstavka${post.id}">
     </div>
 </#list>
 </body>

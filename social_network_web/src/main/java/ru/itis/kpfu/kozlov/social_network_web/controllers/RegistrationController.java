@@ -60,7 +60,7 @@ public class RegistrationController {
             UserDto userDto = userService.findByEmail(userForm.getEmail());
             if (userDto == null) {
                 userService.register(modelMapper.map(userForm, RegForm.class));
-                return "redirect:/";
+                return "redirect:/auth";
             } else {
                 model.addAttribute("existErr", "Email already exists");
             }

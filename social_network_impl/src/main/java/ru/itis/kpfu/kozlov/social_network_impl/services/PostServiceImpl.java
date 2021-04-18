@@ -97,7 +97,11 @@ public class PostServiceImpl implements PostService {
         result.setAuthorId(id);
         result.setText(text);
         result.setAuthorFirstName(userRepository.findById(id).get().getFirstName());
-        postRepository.save(modelMapper.map(result, PostEntity.class));
+        PostEntity entity = postRepository.save(modelMapper.map(result, PostEntity.class));
+        result  = modelMapper.map(entity,PostDto.class);
+        result.setAuthorId(id);
+        result.setText(text);
+        result.setAuthorFirstName(userRepository.findById(id).get().getFirstName());
         return result;
     }
 
