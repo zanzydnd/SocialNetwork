@@ -3,6 +3,7 @@ package ru.itis.kpfu.kozlov.social_network_impl.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
@@ -28,16 +29,33 @@ public class PostEntity {
     @ManyToOne
     private UserEntity author;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CommentEntity> comment;
 
-    @ManyToMany
+    @ManyToMany()
+    @JsonView
+    @JoinTable(
+            name = "post_hashtag",
+            joinColumns = @JoinColumn(name = "post_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "hashtag_id", referencedColumnName = "id")
+    )
+    private List<HashtagEntity> hashtags;
+
+    @ManyToMany(fetch = FetchType.LAZY)
     @JsonView
     @JoinTable(
             name = "post_like",
             joinColumns = @JoinColumn(name = "post_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
     private Set<UserEntity> likes;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonView
+    @JoinTable(
+            name = "post_repost",
+            joinColumns = @JoinColumn(name = "post_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
+    private Set<UserEntity> reposts;
 
     @Override
     public String toString() {

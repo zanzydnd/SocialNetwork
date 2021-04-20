@@ -19,5 +19,6 @@ public class PostDto {
     private String date;
     private Long id;
     private Long numberOfLikes;
+    private Long numberOfReposts;
     private List<CommentDto> comments;
 }

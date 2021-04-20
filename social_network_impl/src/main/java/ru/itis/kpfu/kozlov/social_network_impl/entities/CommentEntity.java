@@ -19,10 +19,10 @@ public class CommentEntity {
     @CreationTimestamp
     public Date createdDate;
 
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = CascadeType.MERGE,fetch = FetchType.LAZY)
     private UserEntity user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private PostEntity post;
 
     @Override

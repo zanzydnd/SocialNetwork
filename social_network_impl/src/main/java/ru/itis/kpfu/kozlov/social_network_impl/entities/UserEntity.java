@@ -10,12 +10,13 @@ import lombok.ToString;
 import javax.persistence.*;
 import java.security.AuthProvider;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Data
 @Entity
 @Table(name = "social_network_user")
-@EqualsAndHashCode(exclude="likedPosts")
+@EqualsAndHashCode(exclude={"likedPosts", "repostedPosts"})
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "PostEntity"})
 public class UserEntity {
     @Id
@@ -32,15 +33,15 @@ public class UserEntity {
     private Date dateOfBirth;
     private Boolean isDeleted;
 
-    @ManyToMany(mappedBy = "likes")
+    @ManyToMany(mappedBy = "likes", fetch = FetchType.LAZY)
     @JsonIgnore
     @JsonView
     private Set<PostEntity> likedPosts;
 
-
-    @ManyToMany
+    @ManyToMany(mappedBy = "reposts",fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<UserEntity> followedUsers;
+    @JsonView
+    private Set<PostEntity> repostedPosts;
 
     @Enumerated(value = EnumType.STRING)
     private Role role;

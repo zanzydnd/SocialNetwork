@@ -11,22 +11,26 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.itis.kpfu.kozlov.social_network_api.dto.CommentDto;
+import ru.itis.kpfu.kozlov.social_network_api.dto.HashtagDto;
 import ru.itis.kpfu.kozlov.social_network_api.dto.PostDto;
 import ru.itis.kpfu.kozlov.social_network_api.dto.UserDto;
 import ru.itis.kpfu.kozlov.social_network_api.services.PostService;
+import ru.itis.kpfu.kozlov.social_network_impl.entities.HashtagEntity;
 import ru.itis.kpfu.kozlov.social_network_impl.entities.PostEntity;
 import ru.itis.kpfu.kozlov.social_network_impl.entities.UserEntity;
+import ru.itis.kpfu.kozlov.social_network_impl.jpa.repository.HashtagRepository;
 import ru.itis.kpfu.kozlov.social_network_impl.jpa.repository.PostRepository;
 import ru.itis.kpfu.kozlov.social_network_impl.jpa.repository.UserRepository;
 
-import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +43,9 @@ public class PostServiceImpl implements PostService {
     private PostRepository postRepository;
 
     @Autowired
+    private HashtagRepository hashtagRepository;
+
+    @Autowired
     private ModelMapper modelMapper;
 
     @Override
@@ -47,11 +54,13 @@ public class PostServiceImpl implements PostService {
                 .and(((root, criteriaQuery, criteriaBuilder) -> {
                     root.fetch("comment", JoinType.LEFT).fetch("user", JoinType.LEFT);
                     root.fetch("author");
-                    root.fetch("likes",JoinType.LEFT);
+                    root.fetch("likes", JoinType.LEFT);
+                    root.fetch("reposts", JoinType.LEFT);
                     return null;
                 })), pageable).map(postEntity -> {
             PostDto dto = modelMapper.map(postEntity, PostDto.class);
             dto.setNumberOfLikes((long) postEntity.getLikes().size());
+            dto.setNumberOfReposts((long) postEntity.getReposts().size());
             dto.setComments(postEntity.getComment().stream().map(
                     commentEntity -> {
                         System.out.println(commentEntity.getUser().getEmail());
@@ -65,6 +74,51 @@ public class PostServiceImpl implements PostService {
         });
     }
 
+    @Override
+    public Page<HashtagDto> findByHashTag(String hashtag, Pageable pageable) {
+        return hashtagRepository.findAll(SpecificationUtils
+                .hashtagByHashtagName(hashtag)
+                .and(((root, criteriaQuery, criteriaBuilder) -> {
+                    root.fetch("posts", JoinType.LEFT).fetch("author")
+                            .getParent().fetch("likes", JoinType.LEFT)
+                            .getParent().fetch("reposts", JoinType.LEFT);
+                            //.getParent().fetch("comment", JoinType.LEFT).fetch("user");
+                    return null;
+                })), pageable).map(hashtagEntity -> {
+            HashtagDto dto = new HashtagDto();
+            dto.setName(hashtagEntity.getName());
+            dto.setPosts(hashtagEntity.getPosts().stream().map(
+                    postEntity -> {
+                        PostDto postDto = modelMapper.map(postEntity, PostDto.class);
+                        postDto.setAuthorFirstName(postEntity.getAuthor().getFirstName());
+                        postDto.setNumberOfLikes((long) postEntity.getLikes().size());
+                        postDto.setNumberOfReposts((long) postEntity.getReposts().size());
+                        /*postDto.setComments(postEntity.getComment().stream().map(
+                                commentEntity -> {
+                                    System.out.println(commentEntity.getUser().getEmail());
+                                    System.out.println(commentEntity.getText());
+                                    CommentDto dto1 = modelMapper.map(commentEntity, CommentDto.class);
+                                    dto1.setUserFirstName(commentEntity.getUser().getFirstName());
+                                    return dto1;
+                                }
+                        ).collect(Collectors.toList()));*/
+                        return postDto;
+                    }
+            ).collect(Collectors.toList()));
+            return dto;
+        });
+    }
+
+    private String textHashtagPreprocessor(String text) {
+        String regex = "\\B(\\#[a-zA-Zа-яА-я]+\\b)(?!;)";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(text);
+        while (matcher.find()) {
+            String str = matcher.group();
+            matcher.group().replace(str, "<a href=\"/hash/" + str + "\">" + str + "</a>");
+        }
+        return text;
+    }
 
     @Override
     public PostDto findById(Long aLong) {
@@ -84,7 +138,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto save(String text, Long id, MultipartFile file) throws IOException {
         PostDto result = new PostDto();
-        if (file != null) {
+        System.out.println(file);
+        if (!file.isEmpty()) {
             Date date = new Date();
             long dateString = date.getTime();
             String fileName = UUID.randomUUID().toString() + dateString + file.getOriginalFilename();
@@ -94,15 +149,37 @@ public class PostServiceImpl implements PostService {
             Files.write(path, bytes);
             result.setPathToFile(fileName);
         }
+        List<HashtagEntity> hashtagEntities = preprocessHashtags(text);
         result.setAuthorId(id);
         result.setText(text);
         result.setAuthorFirstName(userRepository.findById(id).get().getFirstName());
         PostEntity entity = postRepository.save(modelMapper.map(result, PostEntity.class));
-        result  = modelMapper.map(entity,PostDto.class);
+        entity.setHashtags(new ArrayList<>(hashtagEntities));
+        entity = postRepository.save(entity);
+        result = modelMapper.map(entity, PostDto.class);
         result.setAuthorId(id);
         result.setText(text);
         result.setAuthorFirstName(userRepository.findById(id).get().getFirstName());
         return result;
+    }
+
+    private List<HashtagEntity> preprocessHashtags(String text) {
+        String regex = "\\B(\\#[a-zA-Zа-яА-я]+\\b)(?!;)";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(text);
+        List<HashtagEntity> hashtagEntities = new ArrayList<>();
+        while (matcher.find()) {
+            String str = matcher.group();
+            HashtagEntity entity = hashtagRepository.findByName(str);
+            if (entity == null) {
+                entity = new HashtagEntity();
+                entity.setId(null);
+                entity.setName(str);
+                entity = hashtagRepository.save(entity);
+            }
+            hashtagEntities.add(entity);
+        }
+        return hashtagEntities;
     }
 
     @Override
@@ -118,13 +195,28 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(IllegalArgumentException::new);
         PostEntity postEntity = postRepository.findById(postId)
                 .orElseThrow(IllegalArgumentException::new);
-        if(postEntity.getLikes().contains(user)){
+        if (postEntity.getLikes().contains(user)) {
             postEntity.getLikes().remove(user);
-        } else{
+        } else {
             postEntity.getLikes().add(user);
         }
         postRepository.save(postEntity);
         return postEntity.getLikes().size();
+    }
+
+    @Override
+    public Integer repostedByUser(Long postId, Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(IllegalArgumentException::new);
+        PostEntity postEntity = postRepository.findById(postId)
+                .orElseThrow(IllegalArgumentException::new);
+        if (postEntity.getReposts().contains(user)) {
+            postEntity.getReposts().remove(user);
+        } else {
+            postEntity.getReposts().add(user);
+        }
+        postRepository.save(postEntity);
+        return postEntity.getReposts().size();
     }
 
 
@@ -156,6 +248,19 @@ public class PostServiceImpl implements PostService {
                 if (id == null) return null;
                 return criteriaBuilder.equal(root.get("id"), id);
             });
+        }
+
+        public static Specification<HashtagEntity> hashtagByHashtagName(String hashtag) {
+            return ((root, criteriaQuery, criteriaBuilder) -> {
+                if (hashtag == null) return null;
+                return criteriaBuilder.equal(root.get("name"), hashtag);
+            });
+        }
+
+        public static Specification<PostEntity> byHashtagName(String hashtag) {
+            if (hashtag == null) return null;
+
+            return null;
         }
     }
 }
