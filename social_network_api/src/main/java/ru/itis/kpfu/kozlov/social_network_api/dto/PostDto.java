@@ -21,4 +21,5 @@ public class PostDto {
     private Long numberOfLikes;
     private Long numberOfReposts;
     private List<CommentDto> comments;
+    private String address;
 }

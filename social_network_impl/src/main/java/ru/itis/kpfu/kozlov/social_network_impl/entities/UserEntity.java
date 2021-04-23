@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.springframework.security.core.userdetails.User;
 
 import javax.persistence.*;
 import java.security.AuthProvider;
@@ -16,7 +17,7 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "social_network_user")
-@EqualsAndHashCode(exclude={"likedPosts", "repostedPosts"})
+@EqualsAndHashCode(exclude={"likedPosts", "repostedPosts", "followedUsers"})
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "PostEntity"})
 public class UserEntity {
     @Id
@@ -42,6 +43,10 @@ public class UserEntity {
     @JsonIgnore
     @JsonView
     private Set<PostEntity> repostedPosts;
+
+    @ManyToMany
+    @JsonIgnore
+    private List<UserEntity> followedUsers;
 
     @Enumerated(value = EnumType.STRING)
     private Role role;

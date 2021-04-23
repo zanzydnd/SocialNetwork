@@ -26,13 +26,15 @@ public class PostEntity {
     @CreationTimestamp
     private Date date;
 
-    @ManyToOne
+    private String address;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     private UserEntity author;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CommentEntity> comment;
 
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.LAZY)
     @JsonView
     @JoinTable(
             name = "post_hashtag",

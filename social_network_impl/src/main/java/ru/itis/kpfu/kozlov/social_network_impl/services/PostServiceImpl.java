@@ -1,5 +1,11 @@
 package ru.itis.kpfu.kozlov.social_network_impl.services;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,6 +21,7 @@ import ru.itis.kpfu.kozlov.social_network_api.dto.HashtagDto;
 import ru.itis.kpfu.kozlov.social_network_api.dto.PostDto;
 import ru.itis.kpfu.kozlov.social_network_api.dto.UserDto;
 import ru.itis.kpfu.kozlov.social_network_api.services.PostService;
+import ru.itis.kpfu.kozlov.social_network_impl.JsonReader;
 import ru.itis.kpfu.kozlov.social_network_impl.entities.HashtagEntity;
 import ru.itis.kpfu.kozlov.social_network_impl.entities.PostEntity;
 import ru.itis.kpfu.kozlov.social_network_impl.entities.UserEntity;
@@ -25,6 +32,8 @@ import ru.itis.kpfu.kozlov.social_network_impl.jpa.repository.UserRepository;
 import javax.persistence.criteria.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -51,27 +60,61 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<PostDto> findAll(Pageable pageable) {
         return postRepository.findAll(SpecificationUtils.byId(null)
-                .and(((root, criteriaQuery, criteriaBuilder) -> {
-                    root.fetch("comment", JoinType.LEFT).fetch("user", JoinType.LEFT);
-                    root.fetch("author");
-                    root.fetch("likes", JoinType.LEFT);
-                    root.fetch("reposts", JoinType.LEFT);
-                    return null;
-                })), pageable).map(postEntity -> {
-            PostDto dto = modelMapper.map(postEntity, PostDto.class);
-            dto.setNumberOfLikes((long) postEntity.getLikes().size());
-            dto.setNumberOfReposts((long) postEntity.getReposts().size());
-            dto.setComments(postEntity.getComment().stream().map(
-                    commentEntity -> {
-                        System.out.println(commentEntity.getUser().getEmail());
-                        System.out.println(commentEntity.getText());
-                        CommentDto dto1 = modelMapper.map(commentEntity, CommentDto.class);
-                        dto1.setUserFirstName(commentEntity.getUser().getFirstName());
-                        return dto1;
-                    }
-            ).collect(Collectors.toList()));
-            return dto;
-        });
+                        .and(((root, criteriaQuery, criteriaBuilder) -> {
+                            root.fetch("comment", JoinType.LEFT).fetch("user", JoinType.LEFT);
+                            root.fetch("author");
+                            root.fetch("likes", JoinType.LEFT);
+                            root.fetch("reposts", JoinType.LEFT);
+                            criteriaQuery.orderBy(criteriaBuilder.desc(root.get("date")));
+                            return null;
+                        }))
+                , pageable)
+                .map(postEntity -> {
+                    PostDto dto = modelMapper.map(postEntity, PostDto.class);
+                    dto.setNumberOfLikes((long) postEntity.getLikes().size());
+                    dto.setNumberOfReposts((long) postEntity.getReposts().size());
+                    dto.setComments(postEntity.getComment().stream().map(
+                            commentEntity -> {
+                                System.out.println(commentEntity.getUser().getEmail());
+                                System.out.println(commentEntity.getText());
+                                CommentDto dto1 = modelMapper.map(commentEntity, CommentDto.class);
+                                dto1.setUserFirstName(commentEntity.getUser().getFirstName());
+                                return dto1;
+                            }
+                    ).collect(Collectors.toList()));
+                    return dto;
+                });
+    }
+
+    @Override
+    public Page<PostDto> findForMainPage(Long userId, Pageable pageable) {
+        return postRepository.findAll(SpecificationUtils.byId(null)
+                        .and(((root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("author"), userId)))
+                        .or(((root, criteriaQuery, criteriaBuilder) -> root.get("author").in(userRepository.findById(userId).get().getFollowedUsers())))
+                        .and(((root, criteriaQuery, criteriaBuilder) -> {
+                            root.fetch("comment", JoinType.LEFT).fetch("user", JoinType.LEFT);
+                            root.fetch("author");
+                            root.fetch("likes", JoinType.LEFT);
+                            root.fetch("reposts", JoinType.LEFT);
+                            criteriaQuery.orderBy(criteriaBuilder.desc(root.get("date")));
+                            return null;
+                        }))
+                , pageable)
+                .map(postEntity -> {
+                    PostDto dto = modelMapper.map(postEntity, PostDto.class);
+                    dto.setNumberOfLikes((long) postEntity.getLikes().size());
+                    dto.setNumberOfReposts((long) postEntity.getReposts().size());
+                    dto.setComments(postEntity.getComment().stream().map(
+                            commentEntity -> {
+                                System.out.println(commentEntity.getUser().getEmail());
+                                System.out.println(commentEntity.getText());
+                                CommentDto dto1 = modelMapper.map(commentEntity, CommentDto.class);
+                                dto1.setUserFirstName(commentEntity.getUser().getFirstName());
+                                return dto1;
+                            }
+                    ).collect(Collectors.toList()));
+                    return dto;
+                });
     }
 
     @Override
@@ -82,7 +125,6 @@ public class PostServiceImpl implements PostService {
                     root.fetch("posts", JoinType.LEFT).fetch("author")
                             .getParent().fetch("likes", JoinType.LEFT)
                             .getParent().fetch("reposts", JoinType.LEFT);
-                            //.getParent().fetch("comment", JoinType.LEFT).fetch("user");
                     return null;
                 })), pageable).map(hashtagEntity -> {
             HashtagDto dto = new HashtagDto();
@@ -93,15 +135,6 @@ public class PostServiceImpl implements PostService {
                         postDto.setAuthorFirstName(postEntity.getAuthor().getFirstName());
                         postDto.setNumberOfLikes((long) postEntity.getLikes().size());
                         postDto.setNumberOfReposts((long) postEntity.getReposts().size());
-                        /*postDto.setComments(postEntity.getComment().stream().map(
-                                commentEntity -> {
-                                    System.out.println(commentEntity.getUser().getEmail());
-                                    System.out.println(commentEntity.getText());
-                                    CommentDto dto1 = modelMapper.map(commentEntity, CommentDto.class);
-                                    dto1.setUserFirstName(commentEntity.getUser().getFirstName());
-                                    return dto1;
-                                }
-                        ).collect(Collectors.toList()));*/
                         return postDto;
                     }
             ).collect(Collectors.toList()));
@@ -109,16 +142,6 @@ public class PostServiceImpl implements PostService {
         });
     }
 
-    private String textHashtagPreprocessor(String text) {
-        String regex = "\\B(\\#[a-zA-Zа-яА-я]+\\b)(?!;)";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(text);
-        while (matcher.find()) {
-            String str = matcher.group();
-            matcher.group().replace(str, "<a href=\"/hash/" + str + "\">" + str + "</a>");
-        }
-        return text;
-    }
 
     @Override
     public PostDto findById(Long aLong) {
@@ -136,7 +159,7 @@ public class PostServiceImpl implements PostService {
 
 
     @Override
-    public PostDto save(String text, Long id, MultipartFile file) throws IOException {
+    public PostDto save(String text, Long id, MultipartFile file, String address) throws IOException {
         PostDto result = new PostDto();
         System.out.println(file);
         if (!file.isEmpty()) {
@@ -149,16 +172,25 @@ public class PostServiceImpl implements PostService {
             Files.write(path, bytes);
             result.setPathToFile(fileName);
         }
+        if(address!=null){
+            try {
+                address = GeoCoding.code(address);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        }
         List<HashtagEntity> hashtagEntities = preprocessHashtags(text);
         result.setAuthorId(id);
         result.setText(text);
         result.setAuthorFirstName(userRepository.findById(id).get().getFirstName());
         PostEntity entity = postRepository.save(modelMapper.map(result, PostEntity.class));
+        entity.setAddress(address);
         entity.setHashtags(new ArrayList<>(hashtagEntities));
         entity = postRepository.save(entity);
         result = modelMapper.map(entity, PostDto.class);
         result.setAuthorId(id);
         result.setText(text);
+        result.setAddress(address);
         result.setAuthorFirstName(userRepository.findById(id).get().getFirstName());
         return result;
     }
@@ -245,6 +277,7 @@ public class PostServiceImpl implements PostService {
     public static class SpecificationUtils {
         public static Specification<PostEntity> byId(Long id) {
             return ((root, criteriaQuery, criteriaBuilder) -> {
+                System.out.println(root.getModel());
                 if (id == null) return null;
                 return criteriaBuilder.equal(root.get("id"), id);
             });
@@ -257,10 +290,40 @@ public class PostServiceImpl implements PostService {
             });
         }
 
-        public static Specification<PostEntity> byHashtagName(String hashtag) {
-            if (hashtag == null) return null;
+    }
 
-            return null;
+    public static class GeoCoding {
+        public static String code(String address) throws IOException, JSONException {
+            final String baseUrl = "https://maps.googleapis.com/maps/api/geocode/json";
+            Map<String, String> params = new HashMap<>();
+            params.put("sensor", "false");
+            params.put("address", address);
+            final String url = baseUrl + '?' + encodeParams(params) + "&key=AIzaSyA073ajNFNsCVAs0oqzkdhRlx8KgAultYI";
+            System.out.println(url);
+            final JSONObject response = JsonReader.read(url);
+            JSONObject location = response.getJSONArray("results").getJSONObject(0);
+            location = location.getJSONObject("geometry");
+            location = location.getJSONObject("location");
+            final double lng = location.getDouble("lng");// долгота
+            final double lat = location.getDouble("lat");// широта
+            Map<String,String> result = new HashMap<>();
+            result.put("lng", String.valueOf(location.getDouble("lng")));
+            result.put("lat", String.valueOf(location.getDouble("lat")));
+            JSONObject object = new JSONObject(result);
+            return object.toString();
+        }
+
+
+        public static String encodeParams(final Map<String, String> params) {
+            return Joiner.on('&').join(params.entrySet().stream().map(input -> {
+                try {
+                    return input.getKey() +
+                            '=' +
+                            URLEncoder.encode(input.getValue(), "utf-8");
+                } catch (final UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
+                }
+            }).collect(Collectors.toList()));
         }
     }
 }

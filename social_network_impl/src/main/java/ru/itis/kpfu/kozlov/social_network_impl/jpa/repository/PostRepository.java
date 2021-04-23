@@ -12,4 +12,6 @@ import java.util.Optional;
 
 public interface PostRepository extends JpaSpecificationExecutor<PostEntity>, JpaRepository<PostEntity, Long> {
     Optional<PostEntity> findByAuthor(UserEntity user);
+
+    List<PostEntity> findAllByAuthor(UserEntity user);
 }

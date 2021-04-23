@@ -11,9 +11,10 @@ import java.io.IOException;
 import java.util.List;
 
 public interface PostService extends CrudService<PostDto, Long> {
-    PostDto save(String text, Long id, MultipartFile multipartFile) throws IOException;
+    PostDto save(String text, Long id, MultipartFile multipartFile, String address) throws IOException;
     Integer getAmountOfLikes(Long postId);
     Integer likedByUser(Long postId, UserDto userDto);
     Integer repostedByUser(Long postId, Long userId);
     Page<HashtagDto> findByHashTag(String hashtag, Pageable pageable);
+    Page<PostDto> findForMainPage(Long userId,Pageable pageable);
 }

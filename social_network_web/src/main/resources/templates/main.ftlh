@@ -1,12 +1,52 @@
 <#import "/spring.ftl" as spring>
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" style="height: 100%;
+    margin: 0;
+    padding: 0;">
 <head>
     <title>Title</title>
     <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <script
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA073ajNFNsCVAs0oqzkdhRlx8KgAultYI&callback=initMap&libraries=&v=weekly"
+            async
+    ></script>
+    <script>
+        let map;
+
+        function begin() {
+            console.log("__");
+            divs = document.getElementsByClassName("maps");
+            for (let i = 0; i < divs.length; i++) {
+                var params = divs[i].getElementsByClassName("params")[0].value;
+                var postId = divs[i].getElementsByClassName("mapPostId")[0].value;
+                initMap(params, postId);
+            }
+        }
+
+        function initMap(params, postid) {
+            console.log(postid);
+            params = JSON.parse(params)
+            params.lng = parseFloat(params.lng);
+            params.lat = parseFloat(params.lat);
+            console.log(params);
+            map = new google.maps.Map(document.getElementById("map" + postid), {
+                center: params,
+                zoom: 8,
+            });
+            new google.maps.Marker({
+                position: params,
+                map: map
+            });
+        }
+
+        window.onload = begin;
+    </script>
 </head>
-<body>
+<body style="height: 100%;
+    margin: 0;
+    padding: 0;">
 <#if user??>
     <h1>${user.firstName}</h1>
     <form class="talk_input_container" id="post-create">
@@ -14,6 +54,7 @@
         <input hidden name="authorId" id="authorId" value="${user.id}">
         <input type="file" name="pathToFile" id="pathToFile">
         <a id="error-big-data"></a>
+        <input id="address" name="address" type="text" placeholder="Введите адресс">
         <button class="submit_button" id="button" name="button">
             Talk
         </button>
@@ -36,6 +77,15 @@
     <button id="repost${post.id}" class="repost_button" value="${post.id}">
         <a id="numReposts${post.id}">Репост ${post.numberOfReposts}</a>
     </button>
+    <#if post.address??>
+        <div class="maps">
+            <input type="hidden" class="params" value="${post.address}">
+            <input type="hidden" class="mapPostId" value="${post.id}">
+            <div id="map${post.id}" style="width: 600px; height: 200px">
+
+            </div>
+        </div>
+    </#if>
     <form id="form${post.id}">
         <input type="text" id="comment${post.id}" name="text">
         <input type="hidden" value="${post.id}" name="postId">
@@ -57,80 +107,6 @@
 </#list>
 
 <script>
-    /*        function getBase64Image(imgElement){
-                var canvas = document.createElement("canvas");
-                canvas.width = imgElement.clientWidth;
-                canvas.height = imgElement.clientHeight;
-                var ctx = canvas.getContext("2d");
-                ctx.drawImage(imgElement,0,0);
-                var dataUrl = canvas.toDataURL("image/png");
-                return dataUrl.replace(/^data:image\/(png|jpg);base64,/,"");
-            }*/
-    //рабочий вариант в base64.
-    /*
-            $(function () {
-                console.log(1);
-                var reader = new FileReader();
-
-                $('#button').on("click",function (event) {
-                    event.preventDefault();
-                    //var file_data = .prop('files')[0];
-                    var file = $('#post-create > input')[0].files[0];
-                    reader.readAsDataURL(file);
-                    reader.onload = function (event){
-                        var text = $('#text').val();
-                        var author_id = $('#authorId').val();
-                        var data = event.target.result.replace("data:" + file.type + ";base64,",'');
-
-                        console.log(data);
-                        console.log(window.location.href + "posts");
-                        var dada = {"text": text, "authorId": author_id, "pathToFile": data}
-                        console.log(JSON.stringify(dada));
-                        $.ajax({
-                            type: "POST",
-                            url: window.location.href + "posts",
-                            data: JSON.stringify(dada),
-                            enctype: 'multipart/form-data',
-                            processData: false,
-                            cache:false,
-                            contentType: false,
-                            success: function (result) {
-
-                            }
-                        });
-                    }
-                });
-            });
-    */
-    /*
-            $(function () {
-                $('#button').on("click", function (event) {
-                    event.preventDefault();
-                    var file = $('#post-create > input')[0].files[0];
-                    var formData = new FormData();
-                    formData.append('pathToFile', file)
-                    var text = $('#text').val();
-                    var author_id = $('#authorId').val();
-                    var objArr = [];
-
-                    objArr.push({"text": text, "authorId": author_id});
-                    formData.append('objArr', JSON.stringify(objArr));
-
-                    console.log(formData);
-                    $.ajax({
-                        type: "POST",
-                        url: window.location.href + "posts",
-                        data: formData,
-                        processData: false,
-                        cache:false,
-                        //contentType: "multipart/form-data",
-                        success: function (response){
-                            console.log("cool");
-                        }
-                    });
-                });
-
-            });*/
     function ajaxSubmit() {
         var form = $('#post-create')[0];
         var data = new FormData(form);
@@ -149,11 +125,15 @@
                 $("#error-big-data").text("");
                 $("#text").val("");
                 $("#pathToFile").val("");
-                console.log(ret_data);
-                $("#new_post").append("<h1>" + ret_data['authorFirstName'] + "</h1>\n" +
+                var appendable = "<h1>" + ret_data['authorFirstName'] + "</h1>\n" +
                     "    <h3>" + ret_data['date'] + "</h3>\n" +
-                    "    <a>" + ret_data['text'] + "</a>\n" +
-                    "    <img src=\"/uploads/" + ret_data['id'] + "/" + ret_data['pathToFile'] + "\" alt=\"/\">\n" +
+                    "    <a>" + ret_data['text'] + "</a>\n";
+
+                if (ret_data['pathToFile'] != null) {
+                    appendable += "    <img src=\"/uploads/" + ret_data['id'] + "/" + ret_data['pathToFile'] + "\" alt=\"/\">\n";
+                }
+
+                $("#new_post").append(appendable +
                     "    <button id=\"like" + ret_data['id'] + "\" class=\"like_button\" value=\"" + ret_data['id'] + "\">like\n" +
                     "        <a id=\"numLikes" + ret_data['id'] + "\">0</a>\n" +
                     "    </button>\n" +
@@ -210,7 +190,7 @@
                     let a_tag = document.createElement("a");
                     a_tag.attributes.href = '#';
                     a_tag.textContent = e;
-                    return `<a href='/hashtag/` + e.slice(1) +`'>` + e + `</a>`;
+                    return `<a href='/hashtag/` + e.slice(1) + `'>` + e + `</a>`;
                 });
             });
             $('#button').on("click", function (event) {
@@ -255,5 +235,6 @@
         });
     });
 </script>
+
 </body>
 </html>

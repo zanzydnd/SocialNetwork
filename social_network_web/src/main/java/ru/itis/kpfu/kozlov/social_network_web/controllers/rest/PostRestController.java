@@ -34,11 +34,12 @@ public class PostRestController {
     public ResponseEntity<?> createPost(
             @RequestParam("text") String text,
             @RequestParam("authorId") Long id,
+            @RequestParam("address") String address,
             @RequestParam("pathToFile") MultipartFile file
     ) {
         PostDto postDto = new PostDto();
         try {
-            postDto = postService.save(text, id, file);
+            postDto = postService.save(text, id, file, address);
         } catch (IOException e) {
             return ResponseEntity.ok(null);
         }
