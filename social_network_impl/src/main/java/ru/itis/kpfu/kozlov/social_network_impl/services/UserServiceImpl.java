@@ -71,12 +71,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void signUpAfterOAuth(String email, String name, String lastname, String provider) {
+    public void signUpAfterOAuth(UserDto userDto) {
         UserEntity user = new UserEntity();
-        user.setEmail(email);
-        user.setFirstName(name);
-        user.setLastName(lastname);
-        user.setAuth_provider(UserEntity.AuthProvider.GOOGLE);
+        user.setEmail(userDto.getEmail());
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setAuth_provider(UserEntity.AuthProvider.valueOf(userDto.getAuthProvider()));
         userRepository.save(user);
     }
 

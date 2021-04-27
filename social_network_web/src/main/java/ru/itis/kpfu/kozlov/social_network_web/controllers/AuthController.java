@@ -1,6 +1,8 @@
 package ru.itis.kpfu.kozlov.social_network_web.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -44,7 +46,7 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PostMapping("/login")
+    @PostMapping("/auth_api/login")
     @ResponseBody
     public ResponseEntity login(@RequestBody AuthenticationRequestDto requestDto) {
         try {
@@ -77,9 +79,11 @@ public class AuthController {
             return ResponseEntity.ok(response);
         } catch (AuthenticationException e) {
             System.out.println("123123");
+            //return new ResponseEntity(null, new HttpHeaders(), HttpStatus.FORBIDDEN);
             throw new BadCredentialsException("Invalid email or password");
         }
     }
+
     @GetMapping("/auth")
     public String authPage() {
         return "authPage";

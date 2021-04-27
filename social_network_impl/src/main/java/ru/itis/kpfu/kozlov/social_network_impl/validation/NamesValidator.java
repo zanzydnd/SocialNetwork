@@ -18,7 +18,7 @@ public class NamesValidator implements ConstraintValidator<ValidNames, Object> {
 
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
-        Object password = new BeanWrapperImpl(value).getPropertyValue(passwordPropertyName); //получили конкретные значения
+        Object password = new BeanWrapperImpl(value).getPropertyValue(passwordPropertyName);
         Object password2 = new BeanWrapperImpl(value).getPropertyValue(password2PropertyName);
 
         return password != null && password.equals(password2);

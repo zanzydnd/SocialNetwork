@@ -10,6 +10,6 @@ public interface UserService{
     void register(RegForm userDto);
     Optional<UserDto> getUserById(Long id);
     UserDto findByEmail(String email);
-    void signUpAfterOAuth(String email, String name, String lastname, String provider);
+    void signUpAfterOAuth(UserDto userDto);
     void updateUserAfterOAuth(UserDto userDto, String name, String provider);
 }

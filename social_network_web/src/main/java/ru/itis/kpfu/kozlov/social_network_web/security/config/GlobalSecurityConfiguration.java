@@ -2,6 +2,7 @@ package ru.itis.kpfu.kozlov.social_network_web.security.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.PrincipalExtractor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -10,6 +11,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,9 +19,16 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import ru.itis.kpfu.kozlov.social_network_api.dto.UserDto;
+import ru.itis.kpfu.kozlov.social_network_api.services.UserService;
+import ru.itis.kpfu.kozlov.social_network_impl.entities.UserEntity;
+import ru.itis.kpfu.kozlov.social_network_impl.jpa.repository.UserRepository;
+import ru.itis.kpfu.kozlov.social_network_impl.services.UserServiceImpl;
 import ru.itis.kpfu.kozlov.social_network_web.security.jwt.JwtConfigurer;
 import ru.itis.kpfu.kozlov.social_network_web.security.jwt.JwtTokenFilter;
 import ru.itis.kpfu.kozlov.social_network_web.security.jwt.JwtTokenProvider;
+import ru.itis.kpfu.kozlov.social_network_web.security.oauth2.CustomOAuth2UserService;
+import ru.itis.kpfu.kozlov.social_network_web.security.oauth2.OAuth2LoginSuccessHandler;
 
 import javax.sql.DataSource;
 
@@ -53,14 +62,14 @@ public class GlobalSecurityConfiguration {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.csrf().disable();
-
-            http.formLogin().disable();
-            http.httpBasic().disable()
+            http.csrf().disable()
+                    .httpBasic().disable()
+                    .formLogin().disable()
                     .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                     .and()
                     .authorizeRequests()
                     .antMatchers("/api/**").authenticated()
+                    .antMatchers("/auth_api/login/").permitAll()
                     .and()
                     .apply(new JwtConfigurer(jwtTokenProvider));
         }
@@ -81,13 +90,27 @@ public class GlobalSecurityConfiguration {
         @Autowired
         private DataSource dataSource;
 
+        @Autowired
+        private CustomOAuth2UserService oAuth2UserService;
+
+        @Autowired
+        private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+
         @Override
         public void configure(HttpSecurity http) throws Exception {
-            http.csrf().disable();
-            http.authorizeRequests()
-                    .antMatchers("/posts").authenticated()
+            http.csrf().disable()
+                    .oauth2Login().permitAll()
+                    .loginPage("/auth")
+                    .userInfoEndpoint().userService(oAuth2UserService)
                     .and()
-                    .formLogin().loginPage("/auth").permitAll()
+                    .successHandler(oAuth2LoginSuccessHandler)
+                    .and()
+                    .authorizeRequests()
+                    .antMatchers("/posts").authenticated()
+                    .antMatchers("/oauth2/**").permitAll()
+                    .and()
+                    .formLogin()
+                    .loginPage("/auth").permitAll()
                     .usernameParameter("email")
                     .passwordParameter("password")
                     .defaultSuccessUrl("/main")

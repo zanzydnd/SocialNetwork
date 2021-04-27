@@ -1,5 +1,6 @@
 package ru.itis.kpfu.kozlov.social_network_web.security.details;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +26,7 @@ public class JwtUserDetailsService implements UserDetailsService {
         this.userService = userService;
     }
 
+    @SneakyThrows
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         UserDto user = userService.findByEmail(email);

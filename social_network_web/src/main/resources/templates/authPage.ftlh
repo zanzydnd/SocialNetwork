@@ -28,6 +28,7 @@
         <div class="btn-group">
             <button class="btn btn--primary" type="submit">Войти</button>
         </div>
+        <a class="nav-link" href="/oauth2/authorization/google">Гугл</a>
         <a href="/registration"> Зарегистрироваться в Talker-e</a>
     </div>
 </form>

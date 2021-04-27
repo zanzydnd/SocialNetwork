@@ -26,6 +26,7 @@ public class PostRestController {
     private PostService postService;
 
     @GetMapping("/api/posts")
+    @ResponseBody
     public ResponseEntity<Page<PostDto>> getAllPosts(Pageable pageable) {
         return ResponseEntity.ok(postService.findAll(pageable));
     }

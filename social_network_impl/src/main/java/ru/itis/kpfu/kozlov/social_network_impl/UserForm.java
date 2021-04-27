@@ -29,7 +29,7 @@ public class UserForm {
     @NotBlank(message = "password cannot be empty")
     @ValidPassword(message = "invalid password")
     private String password;
-    @NotBlank(message = "password confirmation cannot be empty")
+    @NotBlank(message = "cannot be empty")
     private String password2;
     private String about;
     private String dateOfBirth;
