@@ -1,19 +1,13 @@
 package ru.itis.kpfu.kozlov.social_network_impl.services;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.parameters.P;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.itis.kpfu.kozlov.social_network_api.dto.CommentDto;
@@ -22,6 +16,7 @@ import ru.itis.kpfu.kozlov.social_network_api.dto.PostDto;
 import ru.itis.kpfu.kozlov.social_network_api.dto.UserDto;
 import ru.itis.kpfu.kozlov.social_network_api.services.PostService;
 import ru.itis.kpfu.kozlov.social_network_impl.JsonReader;
+import ru.itis.kpfu.kozlov.social_network_impl.aspects.ExecutionTime;
 import ru.itis.kpfu.kozlov.social_network_impl.entities.HashtagEntity;
 import ru.itis.kpfu.kozlov.social_network_impl.entities.PostEntity;
 import ru.itis.kpfu.kozlov.social_network_impl.entities.UserEntity;
@@ -30,7 +25,6 @@ import ru.itis.kpfu.kozlov.social_network_impl.jpa.repository.PostRepository;
 import ru.itis.kpfu.kozlov.social_network_impl.jpa.repository.UserRepository;
 
 import javax.persistence.criteria.*;
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -58,6 +52,7 @@ public class PostServiceImpl implements PostService {
     private ModelMapper modelMapper;
 
     @Override
+    @ExecutionTime
     public Page<PostDto> findAll(Pageable pageable) {
         return postRepository.findAll(SpecificationUtils.byId(null)
                         .and(((root, criteriaQuery, criteriaBuilder) -> {
@@ -87,6 +82,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @ExecutionTime
     public Page<PostDto> findForMainPage(Long userId, Pageable pageable) {
         return postRepository.findAll(SpecificationUtils.byId(null)
                         .and(((root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("author"), userId)))
@@ -118,6 +114,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @ExecutionTime
     public Page<HashtagDto> findByHashTag(String hashtag, Pageable pageable) {
         return hashtagRepository.findAll(SpecificationUtils
                 .hashtagByHashtagName(hashtag)
@@ -144,6 +141,7 @@ public class PostServiceImpl implements PostService {
 
 
     @Override
+    @ExecutionTime
     public PostDto findById(Long aLong) {
         return postRepository.findById(aLong)
                 .map(postEntity -> modelMapper.map(postEntity, PostDto.class))
@@ -159,6 +157,7 @@ public class PostServiceImpl implements PostService {
 
 
     @Override
+    @ExecutionTime
     public PostDto save(String text, Long id, MultipartFile file, String address) throws IOException {
         PostDto result = new PostDto();
         System.out.println(file);
@@ -172,10 +171,10 @@ public class PostServiceImpl implements PostService {
             Files.write(path, bytes);
             result.setPathToFile(fileName);
         }
-        if(address!=null){
+        if (address != null) {
             try {
                 address = GeoCoding.code(address);
-            } catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -195,6 +194,7 @@ public class PostServiceImpl implements PostService {
         return result;
     }
 
+    @ExecutionTime
     private List<HashtagEntity> preprocessHashtags(String text) {
         String regex = "\\B(\\#[a-zA-Zа-яА-я]+\\b)(?!;)";
         Pattern pattern = Pattern.compile(regex);
@@ -215,12 +215,14 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @ExecutionTime
     public Integer getAmountOfLikes(Long postId) {
         return postRepository.findById(postId)
                 .orElseThrow(IllegalArgumentException::new).getLikes().size();
     }
 
     @Override
+    @ExecutionTime
     public Integer likedByUser(Long postId, UserDto userDto) {
         System.out.println("!!!!!!!!!!!!! likeeee");
         UserEntity user = userRepository.findById(userDto.getId())
@@ -237,6 +239,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @ExecutionTime
     public Integer repostedByUser(Long postId, Long userId) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(IllegalArgumentException::new);
@@ -253,6 +256,7 @@ public class PostServiceImpl implements PostService {
 
 
     @Override
+    @ExecutionTime
     public Boolean delete(Long id) {
         PostEntity enitytToDelete = postRepository.findById(id)
                 .orElseThrow(IllegalArgumentException::new);
@@ -262,6 +266,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @ExecutionTime
     public PostDto update(Long id, PostDto postDto) {
         PostEntity entityToUpdate = postRepository.findById(id)
                 .orElseThrow(IllegalArgumentException::new);
@@ -306,7 +311,7 @@ public class PostServiceImpl implements PostService {
             location = location.getJSONObject("location");
             final double lng = location.getDouble("lng");// долгота
             final double lat = location.getDouble("lat");// широта
-            Map<String,String> result = new HashMap<>();
+            Map<String, String> result = new HashMap<>();
             result.put("lng", String.valueOf(location.getDouble("lng")));
             result.put("lat", String.valueOf(location.getDouble("lat")));
             JSONObject object = new JSONObject(result);

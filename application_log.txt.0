@@ -1,0 +1,4 @@
+апр 30, 2021 2:10:26 PM ru.itis.kpfu.kozlov.social_network_impl.aspects.LogAspect methodTime
+INFO: Page ru.itis.kpfu.kozlov.social_network_impl.services.PostServiceImpl.findForMainPage(Long,Pageable)executed: 34milli sec
+апр 30, 2021 2:10:31 PM ru.itis.kpfu.kozlov.social_network_impl.aspects.LogAspect methodTime
+INFO: Page ru.itis.kpfu.kozlov.social_network_impl.services.PostServiceImpl.findForMainPage(Long,Pageable)executed: 19milli sec

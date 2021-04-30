@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EntityScan(basePackages = "ru.itis.kpfu.kozlov.social_network_impl")
 @EnableJpaRepositories(basePackages = "ru.itis.kpfu.kozlov.social_network_impl.jpa.repository")
 @ComponentScan("ru.itis.kpfu.kozlov.social_network_impl.services")
+@ComponentScan("ru.itis.kpfu.kozlov.social_network_impl.aspects")
 public class ImplementationConfig {
     @Bean
     public ModelMapper ModelMapper() {
