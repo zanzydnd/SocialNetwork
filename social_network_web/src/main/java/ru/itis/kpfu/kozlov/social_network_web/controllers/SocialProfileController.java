@@ -1,6 +1,7 @@
 package ru.itis.kpfu.kozlov.social_network_web.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -13,6 +14,7 @@ import ru.itis.kpfu.kozlov.social_network_api.services.PostService;
 import ru.itis.kpfu.kozlov.social_network_api.services.ProfileService;
 import ru.itis.kpfu.kozlov.social_network_api.services.UserService;
 import ru.itis.kpfu.kozlov.social_network_web.security.details.UserDetailsImpl;
+
 
 @Controller
 public class SocialProfileController {
@@ -28,9 +30,9 @@ public class SocialProfileController {
 
     @GetMapping("/profile/{userId}")
     public String getProfilePage(@PathVariable Long userId, Model model,
-                                 @AuthenticationPrincipal UserDetailsImpl userDetails) throws NotFoundException {
+                                 @AuthenticationPrincipal UserDetailsImpl userDetails, Pageable pageable) throws NotFoundException {
         model.addAttribute("users_page", userService.getUserById(userId).orElseThrow(NotFoundException::new));
-        model.addAttribute("posts_for_profile", profileService.findPostsForProfilePage(userId));
+        model.addAttribute("posts_for_profile", profileService.findPostsForProfilePage(userId,pageable).getContent());
         model.addAttribute("user", userService.findByEmail(userDetails.getUsername()));
         if (model.getAttribute("user") != null) {
             model.addAttribute("isFollowing", profileService.checkIsUserFollowing(

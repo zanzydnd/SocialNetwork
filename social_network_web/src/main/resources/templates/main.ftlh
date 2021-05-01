@@ -14,9 +14,22 @@
     ></script>
     <script>
         let map;
+        $(function () {
+            $(document).ready(function () {
+                let blockText1 = $('.text_post');
+                blockText1.each(function (index) {
+                    const patternB = new RegExp("\\*[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$", "gi");
+                    blockText1[index].innerHTML = blockText1[index].textContent.replace(patternB, function (e) {
+                        let a_tag_1 = document.createElement("a");
+                        a_tag_1.attributes.href = '#';
+                        a_tag_1.textContent = e;
+                        return `<a href='/profile/` + e.slice(1) + `'>` + e + `</a>`;
+                    });
+                });
+            });
+        });
 
         function begin() {
-            console.log("__");
             divs = document.getElementsByClassName("maps");
             for (let i = 0; i < divs.length; i++) {
                 var params = divs[i].getElementsByClassName("params")[0].value;
@@ -116,7 +129,6 @@
             enctype: 'multipart/form-data',
             url: "posts",
             data: data,
-
             processData: false,
             contentType: false,
             cache: false,

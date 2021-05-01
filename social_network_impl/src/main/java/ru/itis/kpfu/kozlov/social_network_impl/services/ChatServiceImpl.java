@@ -67,6 +67,7 @@ public class ChatServiceImpl implements ChatService {
                         .and(((root, criteriaQuery, criteriaBuilder) -> {
                                     root.fetch("sender");
                                     root.fetch("recipient");
+                                    criteriaQuery.orderBy(criteriaBuilder.asc(root.get("time")));
                                     return null;
                                 })
                         )

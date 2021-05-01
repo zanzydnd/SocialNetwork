@@ -39,6 +39,7 @@ public class JwtTokenProvider {
     }
 
     public String createToken(String username, UserEntity.Role role){
+        System.out.println("token created");
         Claims claims = Jwts.claims().setSubject(username);
         claims.put("role", String.valueOf(role));
 
@@ -54,30 +55,39 @@ public class JwtTokenProvider {
     }
 
     public Authentication getAuthentication(String token){
+        System.out.println("authentication");
         UserDetails userDetails = this.userDetailsService.loadUserByUsername(getUsername(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "",userDetails.getAuthorities());
     }
 
     public String getUsername(String token) {
+        System.out.println("getUsername");
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
     }
 
     public String resolveToken(HttpServletRequest req){
+        System.out.println("resolve");
         String bearerToken = req.getHeader("Authorization");
         if(bearerToken != null && bearerToken.startsWith("Bearer_")){
+            System.out.println("alright");
             return bearerToken.substring(7,bearerToken.length());
         }
+        System.out.println("not alright");
         return null;
     }
 
     public boolean validateToken(String token){
+        System.out.println("validateToken");
         try{
             Jws<Claims>  claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
             if (claims.getBody().getExpiration().before(new Date())){
+                System.out.println("expired");
                 return false;
             }
+            System.out.println("ok");
             return true;
         }catch (JwtException |  IllegalArgumentException e){
+            System.out.println("invalid");
             return false;
             //throw new JwtAuthenticationException("Jwt token is expired or invalid");
         }

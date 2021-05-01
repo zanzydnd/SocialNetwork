@@ -31,6 +31,12 @@ public class PostRestController {
         return ResponseEntity.ok(postService.findAll(pageable));
     }
 
+    @GetMapping("/api/posts/{postId}")
+    public ResponseEntity<PostDto> getPost(@PathVariable Long postId){
+        return ResponseEntity.ok(postService.findById(postId));
+    }
+
+
     @PostMapping(value = "/api/posts")
     public ResponseEntity<?> createPost(
             @RequestParam("text") String text,
