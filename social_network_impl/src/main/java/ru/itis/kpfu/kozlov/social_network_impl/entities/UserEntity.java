@@ -17,7 +17,7 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "social_network_user")
-@EqualsAndHashCode(exclude={"likedPosts", "repostedPosts", "followedUsers"})
+@EqualsAndHashCode(exclude = {"likedPosts", "repostedPosts", "followedUsers"})
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "PostEntity"})
 public class UserEntity {
     @Id
@@ -39,12 +39,15 @@ public class UserEntity {
     @JsonView
     private Set<PostEntity> likedPosts;
 
-    @ManyToMany(mappedBy = "reposts",fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "reposts", fetch = FetchType.LAZY)
     @JsonIgnore
     @JsonView
     private Set<PostEntity> repostedPosts;
 
-    @ManyToMany
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {
+            CascadeType.ALL
+    })
     @JsonIgnore
     private List<UserEntity> followedUsers;
 

@@ -95,9 +95,7 @@ public class GlobalSecurityConfiguration {
                     .authorizeRequests()
                     .antMatchers("/api/*").authenticated()
                     .antMatchers("/api/**").authenticated()
-                    .antMatchers("/auth_api/login/").permitAll()
-                    /*.and()
-                    .apply(new JwtConfigurer(jwtTokenProvider))*/;
+                    .antMatchers("/auth_api/login/").permitAll();
         }
     }
 
@@ -134,6 +132,7 @@ public class GlobalSecurityConfiguration {
                     .and()
                     .authorizeRequests()
                     .antMatchers("/posts").authenticated()
+                    .antMatchers("/messages/**").authenticated()
                     .antMatchers("/oauth2/**").anonymous()
                     .antMatchers("/admin").hasAuthority("ADMIN")
                     .and()
@@ -152,7 +151,6 @@ public class GlobalSecurityConfiguration {
 
                         }
                     })
-                    //.defaultSuccessUrl("/main")
                     .failureUrl("/auth?error")
                     .and()
                     .logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))

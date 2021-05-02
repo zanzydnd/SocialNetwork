@@ -4,11 +4,15 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.parameters.P;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.itis.kpfu.kozlov.social_network_api.dto.AuthForm;
 import ru.itis.kpfu.kozlov.social_network_api.dto.RegForm;
 import ru.itis.kpfu.kozlov.social_network_api.dto.UserDto;
+import ru.itis.kpfu.kozlov.social_network_api.exception.NotFoundException;
 import ru.itis.kpfu.kozlov.social_network_api.services.UserService;
 import ru.itis.kpfu.kozlov.social_network_impl.entities.PostEntity;
 import ru.itis.kpfu.kozlov.social_network_impl.entities.UserEntity;
@@ -42,6 +46,7 @@ public class UserServiceImpl implements UserService {
                 user.setId(null);
                 user.setDateOfBirth(date);
                 user.setRole(UserEntity.Role.USER);
+                user.setIsDeleted(false);
                 user.setPassword(passwordEncoder.encode(user.getPassword()));
                 user.setFirstName(regForm.getFirstName());
                 user.setLastName(regForm.getLastName());
@@ -64,7 +69,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto findByEmail(String email) {
         UserEntity entity = userRepository.findUserEntityByEmail(email);
-        if(entity == null){
+        if (entity == null) {
             return null;
         }
         return modelMapper.map(entity, UserDto.class);
@@ -92,5 +97,44 @@ public class UserServiceImpl implements UserService {
         userRepository.save(userEntity);
     }
 
+    @Override
+    public void followUser(Long userId, Long followId) throws NotFoundException {
+        UserEntity user = userRepository.getOne(userId);
+        UserEntity followed = userRepository.findById(followId).orElseThrow(NotFoundException::new);
+        user.getFollowedUsers().add(followed);
+        userRepository.save(user);
+    }
 
+    @Override
+    public void unfollowUser(Long userId, Long unfollowId) {
+        UserEntity user = userRepository.getOne(userId);
+        for (UserEntity delete : user.getFollowedUsers()) {
+            System.out.println(delete.getId());
+            if (delete.getId().equals(unfollowId)) {
+                user.getFollowedUsers().remove(delete);
+                System.out.println("deleted");
+                break;
+            }
+        }
+        userRepository.save(user);
+    }
+
+    @Override
+    public Page<UserDto> getAll(Pageable pageable) {
+        return userRepository.findAll(SpecificationUserUtils.notDeleted(),pageable)
+                .map(userEntity -> modelMapper.map(userEntity, UserDto.class));
+    }
+
+    @Override
+    public void ban(Long userId) throws NotFoundException {
+        UserEntity user = userRepository.findById(userId).orElseThrow(NotFoundException::new);
+        user.setIsDeleted(true);
+        userRepository.save(user);
+    }
+
+    public static class SpecificationUserUtils {
+        public static Specification<UserEntity> notDeleted() {
+            return ((root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("isDeleted"), false));
+        }
+    }
 }
