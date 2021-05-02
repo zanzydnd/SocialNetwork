@@ -1,8 +1,6 @@
 <#import "/spring.ftl" as spring>
 <!DOCTYPE html>
-<html lang="ru" style="height: 100%;
-    margin: 0;
-    padding: 0;">
+<html lang="ru">
 <head>
     <title>Title</title>
     <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
@@ -12,22 +10,53 @@
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA073ajNFNsCVAs0oqzkdhRlx8KgAultYI&callback=initMap&libraries=&v=weekly"
             async
     ></script>
+    <style>
+        .talk_input_container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: auto;
+        }
+
+        html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: papayawhip;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            align-content: center;
+        }
+
+        .post_container {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+        }
+
+        .post_item {
+            background-color: #90D1C4;
+            margin-bottom: 85px;
+            width: 100%;
+            font-size: 20px;
+            max-width: 790px;
+            border-radius: 3px;
+        }
+
+        .comments {
+
+        }
+    </style>
     <script>
         let map;
-        $(function () {
-            $(document).ready(function () {
-                let blockText1 = $('.text_post');
-                blockText1.each(function (index) {
-                    const patternB = new RegExp("\\*[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$", "gi");
-                    blockText1[index].innerHTML = blockText1[index].textContent.replace(patternB, function (e) {
-                        let a_tag_1 = document.createElement("a");
-                        a_tag_1.attributes.href = '#';
-                        a_tag_1.textContent = e;
-                        return `<a href='/profile/` + e.slice(1) + `'>` + e + `</a>`;
-                    });
-                });
-            });
-        });
 
         function begin() {
             divs = document.getElementsByClassName("maps");
@@ -57,9 +86,7 @@
         window.onload = begin;
     </script>
 </head>
-<body style="height: 100%;
-    margin: 0;
-    padding: 0;">
+<body>
 <#if user??>
     <h1>${user.firstName}</h1>
     <form class="talk_input_container" id="post-create">
@@ -74,51 +101,58 @@
     </form>
 </#if>
 
-<div id="new_post">
-</div>
 
-<#list posts as post>
-    <h1>${post.getAuthorFirstName()}</h1>
-    <h3>${post.date}</h3>
-    <h2 class="text_post">${post.text}</h2>
-    <#if post.pathToFile??>
-        <img src="/uploads/${post.id}/${post.pathToFile}" alt="/">
-    </#if>
-    <button id="like${post.id}" class="like_button" value="${post.id}">like
-        <a id="numLikes${post.id}"> ${post.numberOfLikes}</a>
-    </button>
-    <button id="repost${post.id}" class="repost_button" value="${post.id}">
-        <a id="numReposts${post.id}">Репост ${post.numberOfReposts}</a>
-    </button>
-    <#if post.address??>
-        <div class="maps">
-            <input type="hidden" class="params" value="${post.address}">
-            <input type="hidden" class="mapPostId" value="${post.id}">
-            <div id="map${post.id}" style="width: 600px; height: 200px">
+<div class="post_container">
+    <div id="new_post">
+    </div>
+    <#list posts as post>
+        <div class="post_item">
+            <h1>
+                <a href="/profile/${post.authorId}">${post.getAuthorFirstName()}</a>
+            </h1>
+            <div class="post_text">
+                ${post.text}
+            </div>
+            <#if post.pathToFile??>
+                <img src="/uploads/${post.id}/${post.pathToFile}" alt="/">
+            </#if>
+            <button id="like${post.id}" class="like_button" value="${post.id}">like
+                <a id="numLikes${post.id}"> ${post.numberOfLikes}</a>
+            </button>
+            <button id="repost${post.id}" class="repost_button" value="${post.id}">
+                <a id="numReposts${post.id}">Репост ${post.numberOfReposts}</a>
+            </button>
+            <#if post.address??>
+                <div class="maps">
+                    <input type="hidden" class="params" value="${post.address}">
+                    <input type="hidden" class="mapPostId" value="${post.id}">
+                    <div id="map${post.id}" style="width: 600px; height: 200px">
 
+                    </div>
+                </div>
+            </#if>
+            <form id="form${post.id}">
+                <input type="text" id="comment${post.id}" name="text">
+                <input type="hidden" value="${post.id}" name="postId">
+                <input type="submit" name="submit" class="btn" value="отправить">
+            </form>
+
+            <div class="comments">
+                <h2>Comments</h2>
+                <div id="comment-append${post.id}">
+                </div>
+                <#list post.getComments() as comment>
+                    <h4>
+                        <a href="/profile/${comment.userId}">${comment.userFirstName}</a>
+                    </h4>
+                    <h5>
+                        ${comment.text}
+                    </h5>
+                </#list>
             </div>
         </div>
-    </#if>
-    <form id="form${post.id}">
-        <input type="text" id="comment${post.id}" name="text">
-        <input type="hidden" value="${post.id}" name="postId">
-        <input type="submit" name="submit" class="btn" value="отправить">
-    </form>
-    <div>
-        <h2>Comments</h2>
-        <div id="comment-append${post.id}">
-        </div>
-        <#list post.getComments() as comment>
-            <h4>
-                ${comment.userFirstName}
-            </h4>
-            <h5>
-                ${comment.text}
-            </h5>
-        </#list>
-    </div>
-</#list>
-
+    </#list>
+</div>
 <script>
     function ajaxSubmit() {
         var form = $('#post-create')[0];
@@ -137,9 +171,9 @@
                 $("#error-big-data").text("");
                 $("#text").val("");
                 $("#pathToFile").val("");
-                var appendable = "<h1>" + ret_data['authorFirstName'] + "</h1>\n" +
-                    "    <h3>" + ret_data['date'] + "</h3>\n" +
-                    "    <a>" + ret_data['text'] + "</a>\n";
+                var appendable = '<div class="post_item">' +
+                    "<h1>" + ret_data['authorFirstName'] + "</h1>\n" +
+                    '  <div class="post_text"> <a>' + ret_data['text'] + "</a> </div>\n";
 
                 if (ret_data['pathToFile'] != null) {
                     appendable += "    <img src=\"/uploads/" + ret_data['id'] + "/" + ret_data['pathToFile'] + "\" alt=\"/\">\n";
@@ -154,7 +188,7 @@
                     "        <input type=\"hidden\" value=\"\" name=\"userId\">\n" +
                     "        <input type=\"hidden\" value=\"" + ret_data['id'] + "\" name=\"postId\">\n" +
                     "        <input type=\"submit\" name=\"submit\" class=\"btn\" value=\"отправить\">\n" +
-                    "    </form>\n")
+                    "    </form>\n" + "</div>")
             },
             error: function () {
                 $("#error-big-data").text("Большой размер файла");
@@ -195,7 +229,7 @@
 
     $(function () {
         $(document).ready(function () {
-            const blockText = $('.text_post');
+            const blockText = $('.post_text');
             blockText.each(function (index) {
                 const patternA = new RegExp("#[\\w-]*[a-zA-Z0-9][\\w-]*\\b", "gi");
                 blockText[index].innerHTML = blockText[index].textContent.replace(patternA, function (e) {
@@ -236,7 +270,8 @@
                         var text = data['text'];
                         console.log(data);
                         $("#comment-append" + postId).append('<h4>\n' +
-                            '                ' + data['userFirstName'] + '\n' +
+                            '                ' + '<a href="/profile/' + userId + '">' + data['userFirstName'] + '</a>'
+                             + '\n' +
                             '            </h4>\n' +
                             '            <h5>\n' +
                             '                ' + data['text'] + '\n' +

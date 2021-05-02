@@ -135,6 +135,7 @@ public class GlobalSecurityConfiguration {
                     .antMatchers("/messages/**").authenticated()
                     .antMatchers("/oauth2/**").anonymous()
                     .antMatchers("/admin").hasAuthority("ADMIN")
+                    .antMatchers("/resources/**").permitAll()
                     .and()
                     .formLogin()
                     .loginPage("/auth").permitAll()

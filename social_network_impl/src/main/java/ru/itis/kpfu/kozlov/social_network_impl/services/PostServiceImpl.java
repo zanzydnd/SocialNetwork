@@ -87,6 +87,7 @@ public class PostServiceImpl implements PostService {
         return postRepository.findAll(SpecificationUtils.byId(null)
                         .and(((root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("author"), userId)))
                         .or(((root, criteriaQuery, criteriaBuilder) -> root.get("author").in(userRepository.findById(userId).get().getFollowedUsers())))
+                        .and(SpecificationUtils.isUserDeleted())
                         .and(((root, criteriaQuery, criteriaBuilder) -> {
                             root.fetch("comment", JoinType.LEFT).fetch("user", JoinType.LEFT);
                             root.fetch("author");
@@ -280,6 +281,10 @@ public class PostServiceImpl implements PostService {
     }
 
     public static class SpecificationUtils {
+        public static Specification<PostEntity> isUserDeleted() {
+            return ((root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("author").get("isDeleted"), false));
+        }
+
         public static Specification<PostEntity> byId(Long id) {
             return ((root, criteriaQuery, criteriaBuilder) -> {
                 System.out.println(root.getModel());

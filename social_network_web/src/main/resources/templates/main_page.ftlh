@@ -9,63 +9,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Bitter&display=swap" rel="stylesheet">
+    <style>
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: papayawhip;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            align-content: center;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-    <div class="talker_nav">
-        <div class="talker_nav_logo">
-            <a href="#" class="Talker_logo">Talker</a>
-        </div>
-        <div class="talker_nav_you">
-            <a class="Talker_you" href="#">Register</a>
-            <br>
-            <a class="Talker_you" href="#">Login</a>
-        </div>
-    </div>
-
-    <h1></h1>
-    <div class="talks_container">
-        <form class="talk_input_container" action="/posts" method="post">
-            <textarea name="text" id="text" required>Talk</textarea>
-            <button class="submit_button" type="submit">
-                Talk
-            </button>
-        </form>
-
-        <#list posts_page as post>
-            <div class="talk">
-                <div class="talk_inner_user_name">
-                    <a class="talker_username" href="#">${post.userDto.username}</a>
-                </div>
-                <div class="talk_inner_text">
-                    <a class="talk_talk">
-                        ${post.text}
-                    </a>
-                    <button id = "like">like</button>
-                </div>
-                <div class="talk_inner_answer">
-                    <a class="answer" href="#">Answer</a>
-                </div>
-            </div>
-        </#list>
-        <div class="talk">
-            <div class="talk_inner_user_name">
-                <a class="talker_username" href="#">UserName</a>
-            </div>
-            <div class="talk_inner_text">
-                <a class="talk_talk">
-                    It's so great to use that service!
-                </a>
-            </div>
-            <div class="talk_inner_answer">
-                <a class="answer" href="#">Answer</a>
-            </div>
-        </div>
-    </div>
-</div>
-<script
-        src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=&v=weekly"
-        async
-></script>
+<h1><a href="/registration">Зарегестрируйтесь</a></h1>
+<h1><a href="/auth">Авторизируйтесь</a></h1>
 </body>
 </html>

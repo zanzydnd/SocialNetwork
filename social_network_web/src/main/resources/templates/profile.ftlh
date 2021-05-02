@@ -6,46 +6,91 @@
     <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
-        function followUser(followId){
-            let data = JSON.stringify({userId : "${user.id}", followId: followId});
+        function followUser(followId) {
+            let data = JSON.stringify({userId: "${user.id}", followId: followId});
             console.log(data);
             $.ajax({
-               type : "POST",
-               contentType: "application/json",
-               url: "/follow",
-               data: data,
-               success: function (){
-                   console.log(followId);
-                   $("#follow_button").replaceWith('<button value="' + followId +  '" id="unfollow_button">unfollow</button>');
-               }
+                type: "POST",
+                contentType: "application/json",
+                url: "/follow",
+                data: data,
+                success: function () {
+                    console.log(followId);
+                    $("#follow_button").replaceWith('<button value="' + followId + '" id="unfollow_button">unfollow</button>');
+                }
             });
         }
 
-        function unfollowUser(unfollowId){
-            let data = JSON.stringify({userId : "${user.id}", followId: unfollowId});
+        function unfollowUser(unfollowId) {
+            let data = JSON.stringify({userId: "${user.id}", followId: unfollowId});
             console.log(data);
             $.ajax({
-                type : "POST",
+                type: "POST",
                 contentType: "application/json",
                 url: "/unfollow",
                 data: data,
-                success: function (){
-                    $("#unfollow_button").replaceWith('<button value="' + unfollowId +  '" id="follow_button">follow</button>');
+                success: function () {
+                    $("#unfollow_button").replaceWith('<button value="' + unfollowId + '" id="follow_button">follow</button>');
                 }
             });
         }
 
         $(function () {
-           $("#follow_button").on("click", function (event){
-              event.preventDefault();
-              followUser($(this).val());
-           });
-            $("#unfollow_button").on("click", function (event){
+            $("#follow_button").on("click", function (event) {
+                event.preventDefault();
+                followUser($(this).val());
+            });
+            $("#unfollow_button").on("click", function (event) {
                 event.preventDefault();
                 unfollowUser($(this).val());
             });
         });
     </script>
+    <style>
+        .talk_input_container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: auto;
+        }
+
+        html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: papayawhip;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            align-content: center;
+        }
+
+        .post_container {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+        }
+
+        .post_item {
+            background-color: #90D1C4;
+            margin-bottom: 85px;
+            width: 100%;
+            font-size: 20px;
+            max-width: 790px;
+            border-radius: 3px;
+        }
+
+        .comments {
+
+        }
+    </style>
 </head>
 <body>
 <h1>${users_page.firstName} ${users_page.lastName}</h1>
@@ -60,14 +105,16 @@
         </#if>
     </#if>
 </#if>
-
-<#list posts_for_profile as post>
-    <h1>${post.authorFirstName}</h1>
-    <h3>${post.date}</h3>
-    <h2 class="text_post">${post.text}</h2>
-    <#if post.pathToFile??>
-        <img src="/uploads/${post.id}/${post.pathToFile}" alt="/">
-    </#if>
-</#list>
+<div class="post_container">
+    <#list posts_for_profile as post>
+        <div class="post_item">
+            <h1><a href="/profile/${post.authorId}">${post.authorFirstName} </a></h1>
+            <div class="post_text">${post.text}</div>
+            <#if post.pathToFile??>
+                <img src="/uploads/${post.id}/${post.pathToFile}" alt="/">
+            </#if>
+        </div>
+    </#list>
+</div>
 </body>
 </html>

@@ -62,6 +62,53 @@
 
         window.onload = connect;
     </script>
+    <style>
+        .talk_input_container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: auto;
+        }
+
+        html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: papayawhip;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            align-content: center;
+        }
+
+        .post_container {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+        }
+
+        .post_item {
+            background-color: #90D1C4;
+            margin-bottom: 85px;
+            width: 100%;
+            font-size: 20px;
+            max-width: 790px;
+            border-radius: 3px;
+        }
+
+        .messages{
+            display: flex;
+            flex-direction: column;
+
+        }
+    </style>
 </head>
 <body>
 <h1>Chat with ${recipient.firstName}</h1>
@@ -69,15 +116,17 @@
 <div class="chat">
     <#if messages??>
         <#list messages as message>
-            <#if message.senderId == user.id>
-                <a STYLE="color: #19bc8b">
-                    ${user.firstName} : ${message.text}
-                </a>
-            <#else>
-                <a STYLE="color: black">
-                    ${message.senderFirstName} : ${message.text}
-                </a>
-            </#if>
+            <div class="messages">
+                <#if message.senderId == user.id>
+                    <a STYLE="color: #19bc8b">
+                        ${user.firstName} : ${message.text}
+                    </a>
+                <#else>
+                    <a STYLE="color: black">
+                        ${message.senderFirstName} : ${message.text}
+                    </a>
+                </#if>
+            </div>
         </#list>
     </#if>
 </div>

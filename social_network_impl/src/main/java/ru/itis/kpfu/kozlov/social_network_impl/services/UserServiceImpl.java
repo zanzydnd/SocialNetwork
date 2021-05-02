@@ -121,7 +121,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<UserDto> getAll(Pageable pageable) {
-        return userRepository.findAll(SpecificationUserUtils.notDeleted(),pageable)
+        return userRepository.findAll(SpecificationUserUtils.notDeleted(), pageable)
                 .map(userEntity -> modelMapper.map(userEntity, UserDto.class));
     }
 
