@@ -14,6 +14,7 @@ import ru.itis.kpfu.kozlov.social_network_api.dto.RegForm;
 import ru.itis.kpfu.kozlov.social_network_api.dto.UserDto;
 import ru.itis.kpfu.kozlov.social_network_api.exception.NotFoundException;
 import ru.itis.kpfu.kozlov.social_network_api.services.UserService;
+import ru.itis.kpfu.kozlov.social_network_impl.aspects.CacheUser;
 import ru.itis.kpfu.kozlov.social_network_impl.entities.PostEntity;
 import ru.itis.kpfu.kozlov.social_network_impl.entities.UserEntity;
 import ru.itis.kpfu.kozlov.social_network_impl.jpa.repository.PostRepository;
@@ -66,8 +67,10 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(id).map(userEntity -> modelMapper.map(userEntity, UserDto.class));
     }
 
+    @CacheUser
     @Override
     public UserDto findByEmail(String email) {
+        System.out.println("зашел в findByEmail");
         UserEntity entity = userRepository.findUserEntityByEmail(email);
         if (entity == null) {
             return null;
