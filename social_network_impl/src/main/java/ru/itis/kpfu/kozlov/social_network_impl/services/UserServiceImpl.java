@@ -15,6 +15,7 @@ import ru.itis.kpfu.kozlov.social_network_api.dto.UserDto;
 import ru.itis.kpfu.kozlov.social_network_api.exception.NotFoundException;
 import ru.itis.kpfu.kozlov.social_network_api.services.UserService;
 import ru.itis.kpfu.kozlov.social_network_impl.aspects.CacheUser;
+import ru.itis.kpfu.kozlov.social_network_impl.aspects.UpdateCache;
 import ru.itis.kpfu.kozlov.social_network_impl.entities.PostEntity;
 import ru.itis.kpfu.kozlov.social_network_impl.entities.UserEntity;
 import ru.itis.kpfu.kozlov.social_network_impl.jpa.repository.PostRepository;
@@ -67,7 +68,8 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(id).map(userEntity -> modelMapper.map(userEntity, UserDto.class));
     }
 
-    @CacheUser
+
+    @CacheUser()
     @Override
     public UserDto findByEmail(String email) {
         System.out.println("зашел в findByEmail");
@@ -110,9 +112,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void unfollowUser(Long userId, Long unfollowId) {
-        UserEntity user = userRepository.getOne(userId);
+        UserEntity user = null;
+        try {
+            user = userRepository.findAll(SpecificationUserUtils.byId(userId)
+                    .and((root, criteriaQuery, criteriaBuilder) -> {
+                        if (criteriaQuery.getResultType().equals(Long.class)) return null;
+                        root.fetch("followedUsers");
+                        return null;
+                    })
+            ).get(0);
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+            return;
+        }
         for (UserEntity delete : user.getFollowedUsers()) {
-            System.out.println(delete.getId());
             if (delete.getId().equals(unfollowId)) {
                 user.getFollowedUsers().remove(delete);
                 System.out.println("deleted");
@@ -135,9 +148,26 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    @Override
+    @UpdateCache
+    public UserDto updateUser(Long id,UserDto userDto) {
+        UserEntity entityToUpdate = userRepository.getOne(userDto.getId());
+        entityToUpdate.setAbout(userDto.getAbout());
+        entityToUpdate = userRepository.save(entityToUpdate);
+        return modelMapper.map(entityToUpdate, UserDto.class);
+    }
+
     public static class SpecificationUserUtils {
         public static Specification<UserEntity> notDeleted() {
             return ((root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("isDeleted"), false));
+        }
+
+        public static Specification<UserEntity> byId(Long id) {
+            return ((root, criteriaQuery, criteriaBuilder) -> {
+                System.out.println(root.getModel());
+                if (id == null) return null;
+                return criteriaBuilder.equal(root.get("id"), id);
+            });
         }
     }
 }

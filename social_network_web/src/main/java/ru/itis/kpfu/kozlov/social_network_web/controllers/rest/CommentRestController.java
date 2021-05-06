@@ -1,5 +1,6 @@
 package ru.itis.kpfu.kozlov.social_network_web.controllers.rest;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,12 +16,14 @@ public class CommentRestController {
     @Autowired
     private CommentService commentService;
 
+
+
     @GetMapping
     public Page<CommentDto> comments(@PathVariable Long postId, Pageable pageable) {
         return commentService.findByPostId(postId, pageable);
     }
 
-    @PostMapping
+   @PostMapping
     public ResponseEntity<CommentDto> save(@PathVariable Long postId, @RequestBody CommentDto commentDto) {
         commentDto.setPostId(postId);
         System.out.println("!!!!" + commentDto.getUserId());

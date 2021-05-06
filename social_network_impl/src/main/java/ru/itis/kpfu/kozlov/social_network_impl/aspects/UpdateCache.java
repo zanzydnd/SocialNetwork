@@ -10,8 +10,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Component
-public @interface CacheUser {
-    String value() default "";
-    String cacheName() default "";
-    int timeToLiveInMinutes() default 1;
+public @interface UpdateCache {
 }

@@ -1,2 +1,14 @@
-мая 04, 2021 1:06:15 AM ru.itis.kpfu.kozlov.social_network_impl.aspects.LogAspect methodTime
-INFO: Page ru.itis.kpfu.kozlov.social_network_impl.services.PostServiceImpl.findForMainPage(Long,Pageable)executed: 133milli sec
+мая 06, 2021 3:09:24 AM org.apache.coyote.AbstractProtocol init
+INFO: Initializing ProtocolHandler ["http-nio-8080"]
+мая 06, 2021 3:09:24 AM org.apache.catalina.core.StandardService startInternal
+INFO: Starting service [Tomcat]
+мая 06, 2021 3:09:24 AM org.apache.catalina.core.StandardEngine startInternal
+INFO: Starting Servlet engine: [Apache Tomcat/9.0.43]
+мая 06, 2021 3:09:24 AM org.apache.catalina.core.ApplicationContext log
+INFO: Initializing Spring embedded WebApplicationContext
+мая 06, 2021 3:09:30 AM org.apache.catalina.core.StandardContext checkUnusualURLPattern
+INFO: Suspicious URL pattern: [/api/**] in context [], see sections 12.1 and 12.2 of the Servlet specification
+мая 06, 2021 3:09:33 AM org.apache.coyote.AbstractProtocol start
+INFO: Starting ProtocolHandler ["http-nio-8080"]
+мая 06, 2021 3:09:33 AM org.apache.catalina.core.ApplicationContext log
+INFO: Initializing Spring DispatcherServlet 'dispatcherServlet'

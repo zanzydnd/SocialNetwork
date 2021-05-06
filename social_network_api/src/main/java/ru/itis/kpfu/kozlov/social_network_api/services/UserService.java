@@ -19,5 +19,6 @@ public interface UserService{
     void unfollowUser(Long userId, Long unfollowId);
     Page<UserDto> getAll(Pageable pageable);
     void ban(Long userId) throws NotFoundException;
+    UserDto updateUser(Long id,UserDto userDto);
 }
 

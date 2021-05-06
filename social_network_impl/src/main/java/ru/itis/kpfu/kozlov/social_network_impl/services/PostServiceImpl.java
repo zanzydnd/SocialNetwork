@@ -56,6 +56,7 @@ public class PostServiceImpl implements PostService {
     public Page<PostDto> findAll(Pageable pageable) {
         return postRepository.findAll(SpecificationUtils.byId(null)
                         .and(((root, criteriaQuery, criteriaBuilder) -> {
+                            if (criteriaQuery.getResultType().equals(Long.class)) return null;
                             root.fetch("comment", JoinType.LEFT).fetch("user", JoinType.LEFT);
                             root.fetch("author");
                             root.fetch("likes", JoinType.LEFT);
@@ -89,6 +90,7 @@ public class PostServiceImpl implements PostService {
                         .or(((root, criteriaQuery, criteriaBuilder) -> root.get("author").in(userRepository.findById(userId).get().getFollowedUsers())))
                         .and(SpecificationUtils.isUserDeleted())
                         .and(((root, criteriaQuery, criteriaBuilder) -> {
+                            if (criteriaQuery.getResultType().equals(Long.class)) return null;
                             root.fetch("comment", JoinType.LEFT).fetch("user", JoinType.LEFT);
                             root.fetch("author");
                             root.fetch("likes", JoinType.LEFT);
@@ -120,6 +122,7 @@ public class PostServiceImpl implements PostService {
         return hashtagRepository.findAll(SpecificationUtils
                 .hashtagByHashtagName(hashtag)
                 .and(((root, criteriaQuery, criteriaBuilder) -> {
+                    if (criteriaQuery.getResultType().equals(Long.class)) return null;
                     root.fetch("posts", JoinType.LEFT).fetch("author")
                             .getParent().fetch("likes", JoinType.LEFT)
                             .getParent().fetch("reposts", JoinType.LEFT);

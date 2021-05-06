@@ -8,14 +8,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import ru.itis.kpfu.kozlov.social_network_impl.config.ImplementationConfig;
 
+import ru.itis.kpfu.kozlov.social_network_impl.config.ImplementationGlobalConfig;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.annotation.MultipartConfig;
 
 @EnableWebMvc
 @Configuration
-@Import({ImplementationConfig.class})
+
+@Import({ImplementationGlobalConfig.class})
 public class WebConfiguration {
 
     @Bean
@@ -25,4 +26,13 @@ public class WebConfiguration {
         factory.setMaxRequestSize(DataSize.parse("128KB"));
         return factory.createMultipartConfig();
     }
+
+    /*@Bean
+    public Docket api(){
+        return new Docket(DocumentationType.SWAGGER_2)
+                .select()
+                .apis(RequestHandlerSelectors.any())
+                .paths(PathSelectors.any())
+                .build();
+    }*/
 }

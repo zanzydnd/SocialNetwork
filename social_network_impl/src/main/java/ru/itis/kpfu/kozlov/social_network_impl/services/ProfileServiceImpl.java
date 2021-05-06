@@ -37,9 +37,10 @@ public class ProfileServiceImpl implements ProfileService {
         return postRepository.findAll(PostServiceImpl.SpecificationUtils.byId(null)
                         .and(((root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("author"), id)))
                         .or(
-                                ((root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.join("reposts").get("id"),id))
+                                ((root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.join("reposts").get("id"), id))
                         )
                         .and(((root, criteriaQuery, criteriaBuilder) -> {
+                            if (criteriaQuery.getResultType().equals(Long.class)) return null;
                             root.fetch("comment", JoinType.LEFT).fetch("user", JoinType.LEFT);
                             root.fetch("author");
                             root.fetch("likes", JoinType.LEFT);

@@ -31,6 +31,7 @@ public class ChatServiceImpl implements ChatService {
         return messageRepository.findAll(
                 SpecificationMessageUtils.byId(null)
                         .and(((root, criteriaQuery, criteriaBuilder) -> {
+                                    if (criteriaQuery.getResultType().equals(Long.class)) return null;
                                     root.fetch("sender");
                                     root.fetch("recipient");
                                     return null;
@@ -65,6 +66,7 @@ public class ChatServiceImpl implements ChatService {
                         .byChatId(chatId1)
                         .or(SpecificationMessageUtils.byChatId(chatId2))
                         .and(((root, criteriaQuery, criteriaBuilder) -> {
+                                    if (criteriaQuery.getResultType().equals(Long.class)) return null;
                                     root.fetch("sender");
                                     root.fetch("recipient");
                                     criteriaQuery.orderBy(criteriaBuilder.asc(root.get("time")));
