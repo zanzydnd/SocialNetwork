@@ -47,7 +47,6 @@ public class RegistrationController {
             bindingResult.getAllErrors().stream().anyMatch(error -> {
                 if (Objects.requireNonNull(error.getCodes())[0].equals("userForm.ValidNames")) {
                     model.addAttribute("passwordsErrorMessage", error.getDefaultMessage());
-                    System.out.println("pass");
                 }
                 return true;
             });

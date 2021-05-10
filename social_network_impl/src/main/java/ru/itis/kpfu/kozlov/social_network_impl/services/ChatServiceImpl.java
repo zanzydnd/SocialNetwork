@@ -48,8 +48,6 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public MessageDto save(MessageDto messageDto) throws NotFoundException {
         MessageEntity messageEntity = modelMapper.map(messageDto, MessageEntity.class);
-        System.out.println(messageDto.getSenderId());
-        System.out.println(messageDto);
         messageEntity.setSender(userRepository
                 .findById(messageDto.getSenderId()).orElseThrow(NotFoundException::new)
         );

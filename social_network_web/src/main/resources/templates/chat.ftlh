@@ -46,13 +46,13 @@
             var sent = document.getElementById("sent");
             var p = document.createElement("p");
             p.style.wordWrap = "break-word";
-            p.style.color = "black";
+            p.style.color = "#19bc8b";
             p.appendChild(document.createTextNode(message.senderFirstName + ": " + message.text));
             sent.appendChild(p);
         }
 
         function showMessageOutput(messageOutput) {
-            var response = document.getElementById("response");
+            var response = document.getElementById("sent");
             var p = document.createElement("p");
             p.style.wordWrap = "break-word";
             p.style.color = "black";
@@ -63,13 +63,6 @@
         window.onload = connect;
     </script>
     <style>
-        .talk_input_container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: auto;
-        }
-
         html {
             height: 100%;
             margin: 0;
@@ -86,24 +79,7 @@
             align-items: center;
             align-content: center;
         }
-
-        .post_container {
-            align-items: center;
-            display: flex;
-            flex-direction: column;
-            padding-top: 20px;
-        }
-
-        .post_item {
-            background-color: #90D1C4;
-            margin-bottom: 85px;
-            width: 100%;
-            font-size: 20px;
-            max-width: 790px;
-            border-radius: 3px;
-        }
-
-        .messages{
+        .messages {
             display: flex;
             flex-direction: column;
 
@@ -133,9 +109,6 @@
 
 <div class="new_messages">
     <div class="sent" id="sent">
-
-    </div>
-    <div class="recieved" id="response">
 
     </div>
 </div>

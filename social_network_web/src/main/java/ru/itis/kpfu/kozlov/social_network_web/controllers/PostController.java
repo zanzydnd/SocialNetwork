@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 import ru.itis.kpfu.kozlov.social_network_api.dto.HashtagDto;
 import ru.itis.kpfu.kozlov.social_network_api.dto.PostDto;
@@ -30,8 +31,7 @@ public class PostController {
     public String getHashtagedPosts(@PathVariable String hashtagName,
                                     Pageable pageable,
                                     Model model) {
-        System.out.println(hashtagName);
-        List<HashtagDto> dto =  postService.findByHashTag("#" + hashtagName, pageable).getContent();
+        List<HashtagDto> dto = postService.findByHashTag("#" + hashtagName, pageable).getContent();
         model.addAttribute("hashtags", dto);
         return "hashtagList";
     }
@@ -40,13 +40,22 @@ public class PostController {
     @ResponseBody
     public ResponseEntity<?> createPost(@RequestParam("text") String text,
                                         @RequestParam("authorId") Long id,
-                                        @RequestParam("address")String address,
+                                        @RequestParam("address") String address,
                                         @RequestParam("pathToFile") MultipartFile file) {
         PostDto postDto = new PostDto();
         try {
-            postDto = postService.save(text, id, file,address);
+            if (file != null && file.getContentType() != null && !file.getContentType().toLowerCase().startsWith("image")
+                    && !file.getContentType().startsWith("application")) {
+                throw new MultipartException("not img");
+            }
+            if (file != null && file.getSize() > 256000)
+                throw new MultipartException("Too big");
+            postDto = postService.save(text, id, file, address);
         } catch (IOException e) {
             return ResponseEntity.ok(null);
+        } catch (MultipartException multipartException) {
+            multipartException.printStackTrace();
+            return ResponseEntity.badRequest().body(null);
         }
         return ResponseEntity.ok(postDto);
     }

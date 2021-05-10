@@ -128,7 +128,6 @@ public class UserServiceImpl implements UserService {
         for (UserEntity delete : user.getFollowedUsers()) {
             if (delete.getId().equals(unfollowId)) {
                 user.getFollowedUsers().remove(delete);
-                System.out.println("deleted");
                 break;
             }
         }
@@ -164,7 +163,6 @@ public class UserServiceImpl implements UserService {
 
         public static Specification<UserEntity> byId(Long id) {
             return ((root, criteriaQuery, criteriaBuilder) -> {
-                System.out.println(root.getModel());
                 if (id == null) return null;
                 return criteriaBuilder.equal(root.get("id"), id);
             });

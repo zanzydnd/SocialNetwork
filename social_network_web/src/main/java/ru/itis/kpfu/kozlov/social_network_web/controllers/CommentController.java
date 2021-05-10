@@ -22,10 +22,7 @@ public class CommentController {
     @PostMapping("/comments")
     @ResponseBody
     public ResponseEntity<CommentDto> save(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CommentDto commentDto) {
-        System.out.println(commentDto.getPostId());
-        //System.out.println("!!!!" + commentDto.getUserId());
         CommentDto dto = commentService.save(commentDto, userDetails.getUsername());
-        System.out.println(dto.getPostId());
         return ResponseEntity.ok(dto);
     }
 }

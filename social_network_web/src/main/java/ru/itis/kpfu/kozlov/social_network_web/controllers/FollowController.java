@@ -21,7 +21,6 @@ public class FollowController {
     @PostMapping("/follow")
     @ResponseBody
     public ResponseEntity<?> follow(@RequestBody FollowDto followDto) throws NotFoundException {
-        //System.out.println(followDto.getFollowId());
         userService.followUser(followDto.getUserId(), followDto.getFollowId());
         return  ResponseEntity.ok().body("q");
     }
@@ -29,7 +28,6 @@ public class FollowController {
     @PostMapping("/unfollow")
     @ResponseBody
     public ResponseEntity<?> unfollow(@RequestBody FollowDto followDto) throws NotFoundException {
-        //System.out.println(followDto.getFollowId());
         userService.unfollowUser(followDto.getUserId(), followDto.getFollowId());
         return  ResponseEntity.ok().body("q");
     }

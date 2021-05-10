@@ -71,8 +71,6 @@ public class PostServiceImpl implements PostService {
                     dto.setNumberOfReposts((long) postEntity.getReposts().size());
                     dto.setComments(postEntity.getComment().stream().map(
                             commentEntity -> {
-                                System.out.println(commentEntity.getUser().getEmail());
-                                System.out.println(commentEntity.getText());
                                 CommentDto dto1 = modelMapper.map(commentEntity, CommentDto.class);
                                 dto1.setUserFirstName(commentEntity.getUser().getFirstName());
                                 return dto1;
@@ -105,8 +103,6 @@ public class PostServiceImpl implements PostService {
                     dto.setNumberOfReposts((long) postEntity.getReposts().size());
                     dto.setComments(postEntity.getComment().stream().map(
                             commentEntity -> {
-                                System.out.println(commentEntity.getUser().getEmail());
-                                System.out.println(commentEntity.getText());
                                 CommentDto dto1 = modelMapper.map(commentEntity, CommentDto.class);
                                 dto1.setUserFirstName(commentEntity.getUser().getFirstName());
                                 return dto1;
@@ -228,7 +224,6 @@ public class PostServiceImpl implements PostService {
     @Override
     @ExecutionTime
     public Integer likedByUser(Long postId, UserDto userDto) {
-        System.out.println("!!!!!!!!!!!!! likeeee");
         UserEntity user = userRepository.findById(userDto.getId())
                 .orElseThrow(IllegalArgumentException::new);
         PostEntity postEntity = postRepository.findById(postId)
@@ -290,7 +285,6 @@ public class PostServiceImpl implements PostService {
 
         public static Specification<PostEntity> byId(Long id) {
             return ((root, criteriaQuery, criteriaBuilder) -> {
-                System.out.println(root.getModel());
                 if (id == null) return null;
                 return criteriaBuilder.equal(root.get("id"), id);
             });

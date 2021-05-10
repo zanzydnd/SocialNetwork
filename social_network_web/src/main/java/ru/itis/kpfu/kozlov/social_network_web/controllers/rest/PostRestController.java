@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.itis.kpfu.kozlov.social_network_api.dto.PostDto;
@@ -27,12 +29,12 @@ public class PostRestController {
 
     @GetMapping("/api/posts")
     @ResponseBody
-    public ResponseEntity<Page<PostDto>> getAllPosts(Pageable pageable) {
+    public ResponseEntity<Page<PostDto>> getAllPosts(Pageable pageable, @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(postService.findAll(pageable));
     }
 
     @GetMapping("/api/posts/{postId}")
-    public ResponseEntity<PostDto> getPost(@PathVariable Long postId){
+    public ResponseEntity<PostDto> getPost(@PathVariable Long postId) {
         return ResponseEntity.ok(postService.findById(postId));
     }
 

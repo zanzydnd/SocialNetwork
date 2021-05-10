@@ -16,64 +16,65 @@ import java.util.Set;
 @Service
 public class CacheService {
 
-    private class ObjectWrapper{
+    private class ObjectWrapper {
 
         private Date puttedAt;
         private Object object;
 
         public ObjectWrapper(Object user) {
             puttedAt = new Date();
-            this.object = object;
+            this.object = user;
         }
 
-        public boolean isExpired(){
+        public boolean isExpired() {
             Date now = new Date();
-            int days = (int)((now.getTime() - puttedAt.getTime())/(24*60*60*1000));
-            if(days>=5){
+            int days = (int) ((now.getTime() - puttedAt.getTime()) / (24 * 60 * 60 * 1000));
+            if (days >= 5) {
                 return true;
             }
             return false;
         }
 
-        public void setObject(Object o){
+        public void setObject(Object o) {
             object = o;
         }
 
-        public Object getObject(){
+        public Object getObject() {
             return object;
         }
 
-        public void setPuttedAt(Date date){
+        public void setPuttedAt(Date date) {
             puttedAt = date;
         }
     }
 
     private final Map<String, ObjectWrapper> cachedUsers = new HashMap<>();
 
-    public void putUser(String key, Object user){
+    public void putUser(String key, Object user) {
+        if(user == null) return;
         ObjectWrapper objectWrapper = new ObjectWrapper(user);
         cachedUsers.put(key, objectWrapper);
     }
 
-    public boolean containsUser(String key){
+    public boolean containsUser(String key) {
         return cachedUsers.containsKey(key);
     }
 
-    public Object getUser(String key){
+    public Object getUser(String key) {
         return cachedUsers.get(key).getObject();
     }
 
     @Scheduled(cron = "0 0 * * *")
-    private void cleanCahe(){
+    private void cleanCache() {
         Set<String> set = cachedUsers.keySet();
-        for(String key: set){
+        for (String key : set) {
             ObjectWrapper obj = cachedUsers.get(key);
-            if(obj.isExpired()) cachedUsers.remove(key);
+            if (obj.isExpired()) cachedUsers.remove(key);
         }
     }
 
-    public boolean updateCache(String key, Object object){
-        if(!this.containsUser(key)) return false;
+    public boolean updateCache(String key, Object object) {
+        if (!this.containsUser(key)) return false;
         ObjectWrapper update = this.cachedUsers.get(key);
         update.setPuttedAt(new Date());
         update.setObject(object);

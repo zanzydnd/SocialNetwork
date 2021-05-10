@@ -33,12 +33,12 @@ public class MainPageController {
         UserDto user = null;
         if (userDetails != null) {
             user = userService.findByEmail(userDetails.getUsername());
+            user.setPassword(null);
         } else {
             return "main_page";
         }
         model.addAttribute("user", user);
         List<PostDto> dto = postService.findForMainPage(user.getId(), pageable).getContent();
-        System.out.println(dto);
         model.addAttribute("posts", dto);
         return "main";
     }

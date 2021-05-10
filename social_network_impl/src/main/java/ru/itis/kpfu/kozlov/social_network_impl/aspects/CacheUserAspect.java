@@ -25,10 +25,12 @@ public class CacheUserAspect {
         Object args[] = proceedingJoinPoint.getArgs();
         String email = (String) args[0];
         if(cacheService.containsUser(email)){
+            System.out.println("From cache");
+            System.out.println(cacheService.getUser(email));
             return cacheService.getUser(email);
         }
         else{
-            Object result = proceedingJoinPoint.proceed(args);
+            Object result = proceedingJoinPoint.proceed();
             cacheService.putUser(email, result);
             return result;
         }

@@ -37,12 +37,5 @@ public class FileRestController {
                 .contentLength(array.length)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
-
-        /*StreamingResponseBody streamingResponseBody = outputStream -> {
-            final InputStream stream = new FileInputStream(UPLOAD_DIR + "\\" + fileName);
-            byte[] arr = new byte[1024];
-            outputStream.write(arr);
-        };
-        return new ResponseEntity(streamingResponseBody, HttpStatus.OK);*/
     }
 }

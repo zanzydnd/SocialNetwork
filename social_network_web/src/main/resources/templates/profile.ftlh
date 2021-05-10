@@ -5,6 +5,10 @@
     <title>Title</title>
     <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA073ajNFNsCVAs0oqzkdhRlx8KgAultYI&callback=initMap&libraries=&v=weekly"
+            async
+    ></script>
     <script>
         function followUser(followId) {
             let data = JSON.stringify({userId: "${user.id}", followId: followId});
@@ -45,6 +49,36 @@
                 unfollowUser($(this).val());
             });
         });
+    </script>
+    <script>
+        let map;
+
+        function begin() {
+            divs = document.getElementsByClassName("maps");
+            for (let i = 0; i < divs.length; i++) {
+                var params = divs[i].getElementsByClassName("params")[0].value;
+                var postId = divs[i].getElementsByClassName("mapPostId")[0].value;
+                initMap(params, postId);
+            }
+        }
+
+        function initMap(params, postid) {
+            console.log(postid);
+            params = JSON.parse(params)
+            params.lng = parseFloat(params.lng);
+            params.lat = parseFloat(params.lat);
+            console.log(params);
+            map = new google.maps.Map(document.getElementById("map" + postid), {
+                center: params,
+                zoom: 8,
+            });
+            new google.maps.Marker({
+                position: params,
+                map: map
+            });
+        }
+
+        window.onload = begin;
     </script>
     <style>
         .talk_input_container {
@@ -112,6 +146,15 @@
             <div class="post_text">${post.text}</div>
             <#if post.pathToFile??>
                 <img src="/uploads/${post.id}/${post.pathToFile}" alt="/">
+            </#if>
+
+            <#if post.address??>
+                <div class="maps">
+                    <input type="hidden" class="params" value="${post.address}">
+                    <input type="hidden" class="mapPostId" value="${post.id}">
+                    <div id="map${post.id}" style="width: 600px; height: 200px">
+                    </div>
+                </div>
             </#if>
         </div>
     </#list>

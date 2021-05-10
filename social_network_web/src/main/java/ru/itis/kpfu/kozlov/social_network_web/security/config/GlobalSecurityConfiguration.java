@@ -60,7 +60,7 @@ public class GlobalSecurityConfiguration {
 
         @Override
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-             System.out.println("hey");
+            System.out.println("hey");
             auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
         }
 
@@ -71,7 +71,7 @@ public class GlobalSecurityConfiguration {
         }
 
         @Bean
-        public FilterRegistrationBean<JwtTokenFilter> jwtAccessFilter(){
+        public FilterRegistrationBean<JwtTokenFilter> jwtAccessFilter() {
             FilterRegistrationBean<JwtTokenFilter> filterFilterRegistrationBean =
                     new FilterRegistrationBean<>();
             filterFilterRegistrationBean.setFilter(new JwtTokenFilter(jwtTokenProvider));
@@ -139,8 +139,8 @@ public class GlobalSecurityConfiguration {
                     .and()
                     .formLogin()
                     .loginPage("/auth").permitAll()
-                        .usernameParameter("email")
-                        .passwordParameter("password")
+                    .usernameParameter("email")
+                    .passwordParameter("password")
                     .successHandler(new AuthenticationSuccessHandler() {
                         @Override
                         public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {

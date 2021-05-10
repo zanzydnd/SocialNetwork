@@ -8,8 +8,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import ru.itis.kpfu.kozlov.social_network_api.dto.UserDto;
 import ru.itis.kpfu.kozlov.social_network_api.exception.NotFoundException;
 import ru.itis.kpfu.kozlov.social_network_api.services.UserService;
+
+import java.util.List;
 
 @Controller
 public class AdminPageController {
@@ -19,7 +22,9 @@ public class AdminPageController {
 
     @GetMapping("/admin")
     public String getPage(@AuthenticationPrincipal UserDetails userDetails, Model model, Pageable pageable) {
-        model.addAttribute("userList", userService.getAll(pageable).getContent());
+        List<UserDto> userDtoList = userService.getAll(pageable).getContent();
+        userDtoList.forEach(userDto -> userDto.setPassword(null));
+        model.addAttribute("userList", userDtoList);
         return "adminPage";
     }
 

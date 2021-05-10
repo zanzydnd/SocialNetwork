@@ -35,28 +35,27 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public Page<PostDto> findPostsForProfilePage(Long id, Pageable pageable) throws NotFoundException {
         return postRepository.findAll(PostServiceImpl.SpecificationUtils.byId(null)
-                        .and(((root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("author"), id)))
-                        .or(
-                                ((root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.join("reposts").get("id"), id))
-                        )
                         .and(((root, criteriaQuery, criteriaBuilder) -> {
-                            if (criteriaQuery.getResultType().equals(Long.class)) return null;
                             root.fetch("comment", JoinType.LEFT).fetch("user", JoinType.LEFT);
-                            root.fetch("author");
+                            root.fetch("author", JoinType.LEFT);
                             root.fetch("likes", JoinType.LEFT);
                             root.fetch("reposts", JoinType.LEFT);
-                            criteriaQuery.orderBy(criteriaBuilder.desc(root.get("date")));
+                            criteriaQuery.orderBy(
+                                    criteriaBuilder.desc(root.get("date")))
+                                    .where(
+                                            criteriaBuilder.or(criteriaBuilder.equal(root.get("author"), id),
+                                                    criteriaBuilder.equal(root.join("reposts", JoinType.LEFT), id)
+                                            )
+                                    );
                             return null;
-                        }))
-                , pageable)
+                        })),
+                pageable)
                 .map(postEntity -> {
                     PostDto dto = modelMapper.map(postEntity, PostDto.class);
                     dto.setNumberOfLikes((long) postEntity.getLikes().size());
                     dto.setNumberOfReposts((long) postEntity.getReposts().size());
                     dto.setComments(postEntity.getComment().stream().map(
                             commentEntity -> {
-                                System.out.println(commentEntity.getUser().getEmail());
-                                System.out.println(commentEntity.getText());
                                 CommentDto dto1 = modelMapper.map(commentEntity, CommentDto.class);
                                 dto1.setUserFirstName(commentEntity.getUser().getFirstName());
                                 return dto1;

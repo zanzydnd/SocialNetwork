@@ -16,8 +16,6 @@ public class CommentRestController {
     @Autowired
     private CommentService commentService;
 
-
-
     @GetMapping
     public Page<CommentDto> comments(@PathVariable Long postId, Pageable pageable) {
         return commentService.findByPostId(postId, pageable);
@@ -26,9 +24,7 @@ public class CommentRestController {
    @PostMapping
     public ResponseEntity<CommentDto> save(@PathVariable Long postId, @RequestBody CommentDto commentDto) {
         commentDto.setPostId(postId);
-        System.out.println("!!!!" + commentDto.getUserId());
         CommentDto dto = commentService.save(commentDto);
-        System.out.println(dto.getPostId());
         return ResponseEntity.ok(dto);
     }
 
