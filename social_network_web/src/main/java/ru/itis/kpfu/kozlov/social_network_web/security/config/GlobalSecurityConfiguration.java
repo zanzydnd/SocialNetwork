@@ -82,7 +82,6 @@ public class GlobalSecurityConfiguration {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            System.out.println("qwe");
             http
                     .antMatcher("/api/**")
                     .addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)

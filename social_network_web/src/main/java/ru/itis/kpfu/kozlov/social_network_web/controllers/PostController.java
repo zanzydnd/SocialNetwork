@@ -52,10 +52,10 @@ public class PostController {
                 throw new MultipartException("Too big");
             postDto = postService.save(text, id, file, address);
         } catch (IOException e) {
-            return ResponseEntity.ok(null);
+            return ResponseEntity.ok("");
         } catch (MultipartException multipartException) {
             multipartException.printStackTrace();
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body(multipartException.getMessage());
         }
         return ResponseEntity.ok(postDto);
     }

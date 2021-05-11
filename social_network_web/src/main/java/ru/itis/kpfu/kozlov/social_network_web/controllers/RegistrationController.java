@@ -54,8 +54,7 @@ public class RegistrationController {
             model.mergeAttributes(errorsMap);
             model.addAttribute("userForm", userForm);
             return "registrationPage";
-        }
-        else{
+        } else {
             UserDto userDto = userService.findByEmail(userForm.getEmail());
             if (userDto == null) {
                 userService.register(modelMapper.map(userForm, RegForm.class));
