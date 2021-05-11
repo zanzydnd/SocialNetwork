@@ -1,0 +1,161 @@
+body{
+    margin: 0;
+    background: #f8f6e7;
+}
+
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+
+.container{
+    background: #f8f6e7;
+    width: 100%;
+    max-width: 1200px;
+    margin:0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px 15px;
+}
+
+.talker_nav{
+    width: 100%;
+    max-width: 1200px;
+}
+
+.talks_container{
+    display: flex;
+    padding: 20px 20px;
+    flex-direction: column;
+    align-items: center;
+}
+
+.talk{
+    width: 100%;
+    max-width: 790px;
+    background-color: #90D1C4;
+    max-height: 308px;
+    margin-bottom: 85px;
+    border-radius: 3px;
+    -webkit-transition: all 0.5s ease;
+    -webkit-transition-delay: 0.1s;
+
+}
+
+.talk:hover{
+    background-color: #EC7043;
+}
+
+.talk_inner_user_name {
+    text-align: left ;
+    margin-bottom: 20px;
+}
+
+.talk_inner_text {
+    margin-bottom: 20px;
+}
+
+.Talker_logo {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 27px;
+    color: black;
+}
+
+.talk_talk {
+    font-family: 'Bitter', serif;
+    font-size: 22px;
+    color: black;
+}
+
+.Talker_you {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 22px;
+    color: black;
+}
+
+.talker_username {
+    font-family: 'Bitter', serif;
+    font-size: 27px;
+    color: black;
+}
+
+.answer {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 22px;
+    color: black;
+}
+
+.talk_inner_answer {
+    text-align: right;
+}
+
+.talker_nav_logo {
+    text-align: left;
+}
+
+.talker_nav_you {
+    text-align: right;
+}
+
+
+.talk_input_container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.geo_and_files{
+    display: flex;
+    flex-direction: row;
+    align-content:flex-start;
+}
+textarea{
+    resize: none;
+    margin: 10px 10px;
+    width: 790px;
+    height: 308px;
+    font-size: 25px;
+    font-family: 'Roboto Condensed', sans-serif;
+    child-align: auto;
+}
+
+textarea:focus{
+    background-color: #e4cb58;
+}
+
+.talk_text_area{
+    margin: 10px 10px;
+    max-width: 790px;
+    width: 100%;
+    max-height: 308px;
+    height: 100%;
+}
+
+
+.submit_button{
+    margin: 10px 10px;
+     box-shadow:
+    0.3em 0.3em 0 0 ,
+    inset 0.3em 0.3em 0 0 #19bc8b;
+}
+
+.submit_button:hover, :focus {
+    box-shadow:
+      0 0 0 0 #e4cb58,
+      inset 6em 3.5em 0 0 #e4cb58;
+  }
+
+button {
+  background: none;
+  border: 2px solid;
+  font: inherit;
+  line-height: 1;
+  margin: 0.5em;
+  padding: 1em 2em;
+}
+
+.name_follow_button{
+    display: flex;
+    flex-direction: row;
+    padding: 10px 10pxч;
+}
